@@ -8,9 +8,10 @@ import { Button } from "./Button";
 
 const navLinks = [
   { href: "#journey", label: "How it works" },
-  { href: "#arena", label: "Coding arena" },
+  { href: "#tech", label: "Courses" },
   { href: "#labs", label: "Labs" },
-  { href: "#beyond", label: "Skills" },
+  { href: "#exams", label: "Exams" },
+  { href: "#admin", label: "For colleges" },
 ];
 
 export function Header() {
@@ -47,7 +48,7 @@ export function Header() {
             </span>
           </a>
 
-          <div className="hidden md:flex gap-9">
+          <div className="hidden lg:flex gap-7">
             {navLinks.map((l) => (
               <a
                 key={l.href}
@@ -60,7 +61,7 @@ export function Header() {
             ))}
           </div>
 
-          <div className="hidden md:flex items-center gap-3.5">
+          <div className="hidden lg:flex items-center gap-3.5">
             <a href="#" className="font-semibold text-ink">
               Login
             </a>
@@ -70,7 +71,7 @@ export function Header() {
           </div>
 
           <button
-            className="md:hidden flex items-center justify-center bg-transparent border-2 border-line rounded-[11px] w-[46px] h-[46px] cursor-pointer text-ink"
+            className="lg:hidden flex items-center justify-center bg-transparent border-2 border-line rounded-[11px] w-[46px] h-[46px] cursor-pointer text-ink"
             aria-label={open ? "Close menu" : "Open menu"}
             onClick={() => setOpen((o) => !o)}
           >
@@ -86,7 +87,7 @@ export function Header() {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25, ease: [0.2, 0.7, 0.2, 1] }}
-            className="md:hidden overflow-hidden border-t border-line bg-paper"
+            className="lg:hidden overflow-hidden border-t border-line bg-paper"
           >
             <div className="flex flex-col px-6 py-5 gap-1">
               {navLinks.map((l) => (

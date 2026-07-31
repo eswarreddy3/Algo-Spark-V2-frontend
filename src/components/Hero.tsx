@@ -58,8 +58,9 @@ export function Hero() {
             </motion.h1>
 
             <motion.p variants={item} className="text-xl text-ink-soft mt-[26px] max-w-[34ch]">
-              Not another lecture library. A hands-on arena where every engineering student writes
-              real code, works through weekly labs, and builds the exact skills placements test.
+              The full college platform: tech &amp; non-tech courses, sem-wise labs, and
+              placement-style exams — all AI-graded, with a live admin dashboard for every
+              cohort.
             </motion.p>
 
             <motion.div variants={item} className="flex gap-3.5 flex-wrap mt-[34px]">

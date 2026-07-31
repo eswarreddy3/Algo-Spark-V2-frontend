@@ -1,6 +1,13 @@
 import { Sparkle } from "./icons";
 
-const words = ["Learn by doing", "Real code", "Weekly labs", "SQL & Big-O", "Mock interviews", "Think · Innovate"];
+const words = [
+  "Tech & non-tech courses",
+  "6+ languages + SQL",
+  "Sem-wise labs",
+  "AI-graded exams",
+  "College dashboards",
+  "Think · Innovate",
+];
 
 function Track() {
   return (

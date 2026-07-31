@@ -5,16 +5,18 @@ const columns = [
     heading: "Learn",
     links: [
       { href: "#journey", label: "How it works" },
-      { href: "#arena", label: "Coding arena" },
-      { href: "#labs", label: "Weekly labs" },
-      { href: "#beyond", label: "Non-tech skills" },
+      { href: "#tech", label: "Tech courses" },
+      { href: "#nontech", label: "Non-tech courses" },
+      { href: "#labs", label: "Labs" },
+      { href: "#exams", label: "Exams" },
     ],
   },
   {
-    heading: "Platform",
+    heading: "Colleges",
     links: [
-      { href: "#beyond", label: "Exams" },
-      { href: "#outcomes", label: "Leaderboards" },
+      { href: "#admin", label: "Admin dashboard" },
+      { href: "#admin", label: "Student reports" },
+      { href: "#admin", label: "Leaderboards" },
       { href: "#book", label: "Book a demo" },
       { href: "#", label: "Login" },
     ],
@@ -46,8 +48,9 @@ export function Footer() {
               </span>
             </a>
             <p className="text-ink-mute text-[15px] mt-3.5 max-w-[32ch]">
-              Learn. Think. Innovate. Where engineering students learn to code by doing — and get
-              placement-ready.
+              Learn. Think. Innovate. The college platform where students train on tech and
+              non-tech courses, sem-wise labs, and AI-graded exams — fully visible to your admin
+              dashboard.
             </p>
           </div>
           {columns.map((col) => (

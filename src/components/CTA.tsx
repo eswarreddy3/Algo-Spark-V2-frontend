@@ -35,8 +35,8 @@ export function CTA() {
             to your college.
           </h2>
           <p className="relative z-[2] text-[#B6BEE6] text-[19px] my-5 mx-auto max-w-[46ch]">
-            Give your students a real place to practice — and turn everyday effort into
-            placement-ready skills.
+            Give your students a real place to practice — and give your placement cell a live
+            dashboard of every student, every course, every lab.
           </p>
           <div className="relative z-[2] flex gap-3.5 flex-wrap justify-center">
             <Button href="#" icon>

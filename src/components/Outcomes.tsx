@@ -25,15 +25,15 @@ export function Outcomes() {
           </span>
         </Reveal>
         <Reveal delay={0.1} className="mt-[18px]">
-          <p className="font-display font-bold text-[30px] sm:text-[44px] md:text-[58px] leading-[1.14] tracking-[-0.03em] max-w-[16ch]">
+          <p className="font-display font-bold text-[30px] sm:text-[44px] md:text-[58px] leading-[1.14] tracking-[-0.03em] max-w-[18ch]">
             <span className="bg-clip-text text-transparent" style={{ backgroundImage: "var(--gold-grad)" }}>
               4
             </span>{" "}
-            ways to practice,{" "}
+            learning tracks,{" "}
             <span className="bg-clip-text text-transparent" style={{ backgroundImage: "var(--gold-grad)" }}>
-              12
+              6+
             </span>{" "}
-            weeks of guided labs,{" "}
+            coding languages,{" "}
             <span className="bg-clip-text text-transparent" style={{ backgroundImage: "var(--gold-grad)" }}>
               100%
             </span>{" "}
@@ -45,8 +45,9 @@ export function Outcomes() {
           </p>
         </Reveal>
         <Reveal delay={0.2} className="text-[#AEB6E0] text-lg mt-[26px] max-w-[44ch]">
-          Points, ranks, and streaks turn daily practice into visible progress — and give faculty
-          a live read on the whole cohort, not just the toppers.
+          Tech, non-tech, labs, and exams — every submission is scored and logged, feeding a live
+          admin dashboard that gives colleges a real read on the whole cohort, not just the
+          toppers.
         </Reveal>
       </div>
     </section>
