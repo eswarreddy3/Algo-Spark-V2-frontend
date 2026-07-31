@@ -30,7 +30,8 @@ export function FlowLines({
           fill="none"
           strokeLinecap="round"
           initial={{ pathLength: 0 }}
-          animate={{ pathLength: 1 }}
+          whileInView={{ pathLength: 1 }}
+          viewport={{ once: true, margin: "-10%" }}
           transition={{ duration: 2.6, ease: "easeInOut", delay: line.delay ?? 0 }}
         />
       ))}

@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
 import { Reveal } from "./Reveal";
 import { LearnIcon, PracticeIcon, FeedbackIcon, LevelUpIcon } from "./icons";
 
@@ -12,6 +13,7 @@ const steps = [
     icon: LearnIcon,
     node: "bg-blue-node",
     side: "left" as const,
+    threshold: 0.12,
   },
   {
     n: "02",
@@ -20,6 +22,7 @@ const steps = [
     icon: PracticeIcon,
     node: "bg-cyan-node",
     side: "right" as const,
+    threshold: 0.38,
   },
   {
     n: "03",
@@ -28,6 +31,7 @@ const steps = [
     icon: FeedbackIcon,
     node: "bg-violet-node",
     side: "left" as const,
+    threshold: 0.62,
   },
   {
     n: "04",
@@ -36,17 +40,60 @@ const steps = [
     icon: LevelUpIcon,
     node: "bg-gold-node",
     side: "right" as const,
+    threshold: 0.88,
   },
 ];
 
-const nodeStyles: Record<string, React.CSSProperties> = {
-  "bg-blue-node": { backgroundImage: "var(--blue-grad)" },
-  "bg-cyan-node": { backgroundImage: "linear-gradient(120deg, #1EC8DC, #4DA3F5)" },
-  "bg-violet-node": { backgroundImage: "linear-gradient(120deg, #8B7CE8, #2F5BF0)" },
-  "bg-gold-node": { backgroundImage: "var(--gold-grad)" },
+const nodeGradients: Record<string, string> = {
+  "bg-blue-node": "var(--blue-grad)",
+  "bg-cyan-node": "linear-gradient(120deg, #1EC8DC, #4DA3F5)",
+  "bg-violet-node": "linear-gradient(120deg, #8B7CE8, #2F5BF0)",
+  "bg-gold-node": "var(--gold-grad)",
 };
 
+function JourneyNode({
+  step,
+  progress,
+}: {
+  step: (typeof steps)[number];
+  progress: MotionValue<number>;
+}) {
+  const t = step.threshold;
+  const scale = useTransform(progress, [t - 0.16, t, t + 0.1], [0.86, 1.2, 1]);
+  const fill = useTransform(progress, [t - 0.05, t + 0.04], [0, 1]);
+  const iconColor = useTransform(progress, [t - 0.05, t + 0.04], ["#AEB4DE", "#FFFFFF"]);
+  const ring = useTransform(progress, [t - 0.16, t, t + 0.16], [0, 1, 0]);
+  const Icon = step.icon;
+
+  return (
+    <motion.div style={{ scale }} className="relative flex items-center justify-center">
+      <motion.div
+        className="absolute -inset-2.5 rounded-full"
+        style={{
+          opacity: ring,
+          boxShadow: "0 0 0 4px rgba(36,48,216,0.14)",
+        }}
+      />
+      <div className="relative w-16 h-16 rounded-full bg-white shadow-[0_12px_30px_rgba(36,48,216,0.18)] flex items-center justify-center overflow-hidden">
+        <motion.div
+          className="absolute inset-0 rounded-full"
+          style={{ backgroundImage: nodeGradients[step.node], opacity: fill }}
+        />
+        <motion.div style={{ color: iconColor }} className="relative z-10">
+          <Icon className="w-7 h-7" />
+        </motion.div>
+      </div>
+    </motion.div>
+  );
+}
+
 export function Journey() {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: wrapRef,
+    offset: ["start end", "end start"],
+  });
+
   return (
     <section className="py-24 sm:py-[100px] bg-cream relative overflow-hidden" id="journey">
       <div className="mx-auto max-w-[1180px] px-6">
@@ -65,7 +112,7 @@ export function Journey() {
           </p>
         </Reveal>
 
-        <div className="relative max-w-[940px] mx-auto mt-14">
+        <div ref={wrapRef} className="relative max-w-[940px] mx-auto mt-14">
           <svg
             className="hidden md:block absolute left-1/2 top-0 h-full -translate-x-1/2 z-[1] pointer-events-none"
             width="120"
@@ -84,15 +131,11 @@ export function Journey() {
               stroke="url(#bg)"
               strokeWidth="4"
               fill="none"
-              initial={{ pathLength: 0 }}
-              whileInView={{ pathLength: 1 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 2.4, ease: "easeInOut" }}
+              style={{ pathLength: scrollYProgress }}
             />
           </svg>
 
           {steps.map((step, i) => {
-            const Icon = step.icon;
             const isLeft = step.side === "left";
             return (
               <Reveal
@@ -114,12 +157,7 @@ export function Journey() {
                   </p>
                 </div>
                 <div className="hidden md:flex justify-center md:col-start-2">
-                  <div
-                    className="w-16 h-16 rounded-full bg-white shadow-[0_12px_30px_rgba(36,48,216,0.18)] flex items-center justify-center text-white"
-                    style={nodeStyles[step.node]}
-                  >
-                    <Icon className="w-7 h-7" />
-                  </div>
+                  <JourneyNode step={step} progress={scrollYProgress} />
                 </div>
               </Reveal>
             );

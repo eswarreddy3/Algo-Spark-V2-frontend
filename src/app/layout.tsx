@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Sora, Instrument_Serif, Instrument_Sans, JetBrains_Mono } from "next/font/google";
+import { MotionProvider } from "@/components/MotionProvider";
 import "./globals.css";
 
 const sora = Sora({
@@ -43,7 +44,9 @@ export default function RootLayout({
       lang="en"
       className={`${sora.variable} ${instrumentSerif.variable} ${instrumentSans.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-paper text-ink">{children}</body>
+      <body className="min-h-full flex flex-col bg-paper text-ink">
+        <MotionProvider>{children}</MotionProvider>
+      </body>
     </html>
   );
 }
