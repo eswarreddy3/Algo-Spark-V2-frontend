@@ -1,4 +1,5 @@
 import { Reveal } from "./Reveal";
+import { AIBadge } from "./AIBadge";
 import { QuizIcon, CodeBracketsIcon, EmailIcon, ReadingIcon } from "./icons";
 
 const items = [
@@ -7,24 +8,28 @@ const items = [
     bg: "var(--gold-grad)",
     title: "MCQs",
     text: "Timed multiple-choice sections across every subject",
+    ai: false,
   },
   {
     icon: CodeBracketsIcon,
     bg: "linear-gradient(135deg,#2430D8,#4DA3F5)",
     title: "Coding questions",
     text: "Auto-judged against hidden test cases",
+    ai: false,
   },
   {
     icon: EmailIcon,
     bg: "linear-gradient(135deg,#1EC8DC,#4DA3F5)",
     title: "Email writing",
-    text: "AI evaluated for tone, clarity, and structure",
+    text: "Evaluated for tone, clarity, and structure",
+    ai: true,
   },
   {
     icon: ReadingIcon,
     bg: "linear-gradient(135deg,#8B7CE8,#2F5BF0)",
     title: "Paragraph reading",
-    text: "AI evaluated comprehension and fluency",
+    text: "Evaluated for comprehension and fluency",
+    ai: true,
   },
 ];
 
@@ -64,7 +69,10 @@ export function ExamsSection() {
                     <Icon className="w-[19px] h-[19px]" />
                   </span>
                   <div>
-                    <b className="font-display font-semibold text-[15px] block">{it.title}</b>
+                    <span className="flex items-center gap-2 flex-wrap">
+                      <b className="font-display font-semibold text-[15px]">{it.title}</b>
+                      {it.ai && <AIBadge />}
+                    </span>
                     <span className="text-[13px] text-ink-mute">{it.text}</span>
                   </div>
                 </div>

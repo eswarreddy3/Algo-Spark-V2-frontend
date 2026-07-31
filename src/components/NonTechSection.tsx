@@ -1,4 +1,5 @@
 import { Reveal } from "./Reveal";
+import { AIBadge } from "./AIBadge";
 import { LearnIcon, QuizIcon, EmailIcon } from "./icons";
 
 const items = [
@@ -7,18 +8,21 @@ const items = [
     bg: "linear-gradient(135deg,#8B7CE8,#2F5BF0)",
     title: "Theory (PPT)",
     text: "Short concept lessons for every non-tech module",
+    ai: false,
   },
   {
     icon: QuizIcon,
     bg: "var(--gold-grad)",
     title: "MCQs practice",
     text: "Practice questions to lock in every module",
+    ai: false,
   },
   {
     icon: EmailIcon,
     bg: "linear-gradient(135deg,#1EC8DC,#4DA3F5)",
-    title: "AI email writing",
+    title: "Email writing",
     text: "Real feedback on tone, clarity, and structure",
+    ai: true,
   },
 ];
 
@@ -33,7 +37,7 @@ export function NonTechSection() {
             </span>
             <h3 className="text-[28px] sm:text-[34px] md:text-[40px] tracking-[-0.02em] mt-3.5">
               Placements test{" "}
-              <em className="font-serif-em not-italic text-royal" style={{ fontStyle: "italic" }}>
+              <em className="font-serif-em not-italic text-magenta" style={{ fontStyle: "italic" }}>
                 more
               </em>{" "}
               than algorithms.
@@ -58,7 +62,10 @@ export function NonTechSection() {
                     <Icon className="w-[19px] h-[19px]" />
                   </span>
                   <div>
-                    <b className="font-display font-semibold text-[15px] block">{it.title}</b>
+                    <span className="flex items-center gap-2">
+                      <b className="font-display font-semibold text-[15px]">{it.title}</b>
+                      {it.ai && <AIBadge />}
+                    </span>
                     <span className="text-[13px] text-ink-mute">{it.text}</span>
                   </div>
                 </div>

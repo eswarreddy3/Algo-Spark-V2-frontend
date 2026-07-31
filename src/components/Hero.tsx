@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { FlowLines } from "./FlowLines";
+import { GlowOrbs } from "./GlowOrbs";
 import { EditorWindow, CodeLine } from "./EditorWindow";
 import { Button } from "./Button";
 import { Sparkle } from "./icons";
@@ -18,6 +19,7 @@ const item = {
 export function Hero() {
   return (
     <section className="relative overflow-hidden pt-14 pb-8" id="top">
+      <GlowOrbs variant="light" />
       <FlowLines
         viewBox="0 0 1440 720"
         lines={[
@@ -34,7 +36,14 @@ export function Hero() {
           animate="show"
         >
           <div>
-            <motion.div variants={item} className="flex gap-5 font-mono text-[13px] font-medium tracking-[0.14em] uppercase text-ink-mute">
+            <motion.div variants={item}>
+              <span className="inline-flex items-center gap-2 font-mono text-[12.5px] font-medium text-royal bg-white border border-royal/[0.18] px-3.5 py-[7px] rounded-full shadow-[0_4px_18px_rgba(36,48,216,0.14)] animate-pulse-ai">
+                <Sparkle className="w-[14px] h-[14px]" gradient="gg" />
+                AI-powered learning platform
+              </span>
+            </motion.div>
+
+            <motion.div variants={item} className="flex gap-5 font-mono text-[13px] font-medium tracking-[0.14em] uppercase text-ink-mute mt-4">
               <span className="inline-flex items-center gap-[7px]">
                 <i className="w-2 h-2 rounded-full block bg-cyan" />
                 Learn

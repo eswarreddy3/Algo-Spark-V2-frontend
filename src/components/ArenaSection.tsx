@@ -21,7 +21,7 @@ export function ArenaSection() {
             </span>
             <h3 className="text-[28px] sm:text-[34px] md:text-[40px] tracking-[-0.02em] mt-3.5">
               Every module built to{" "}
-              <em className="font-serif-em not-italic text-royal" style={{ fontStyle: "italic" }}>
+              <em className="font-serif-em not-italic text-violet-deep" style={{ fontStyle: "italic" }}>
                 write
               </em>{" "}
               code, not just read it.

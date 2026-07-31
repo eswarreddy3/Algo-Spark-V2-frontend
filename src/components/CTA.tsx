@@ -11,7 +11,20 @@ export function CTA() {
           className="relative rounded-[32px] px-6 sm:px-10 py-[56px] sm:py-[70px] text-center text-white overflow-hidden"
           as="div"
         >
-          <div className="absolute inset-0 bg-ink -z-10" />
+          <Image
+            src="https://images.unsplash.com/photo-1758270705317-3ef6142d306f?fm=jpg&q=80&w=1920&auto=format&fit=crop"
+            alt="Students collaborating around a laptop"
+            fill
+            sizes="100vw"
+            className="object-cover -z-20"
+          />
+          <div
+            className="absolute inset-0 -z-10"
+            style={{
+              background:
+                "linear-gradient(120deg, rgba(13,15,43,.94) 0%, rgba(13,15,43,.88) 45%, rgba(36,48,216,.55) 78%, rgba(236,72,153,.4) 100%)",
+            }}
+          />
           <FlowLines
             className="-z-[5]"
             viewBox="0 0 1200 420"

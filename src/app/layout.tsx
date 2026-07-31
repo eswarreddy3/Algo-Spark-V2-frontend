@@ -28,9 +28,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AlgoSpark — Learn. Think. Innovate.",
+  title: "AlgoSpark — AI-Powered Learning Platform for Colleges",
   description:
-    "AlgoSpark is where engineering students learn to code by doing — real practice, weekly labs, and the skills placements test.",
+    "AlgoSpark is the AI-powered college platform for tech & non-tech courses, sem-wise labs, and placement-style exams — with instant AI grading and a live admin dashboard.",
 };
 
 export default function RootLayout({

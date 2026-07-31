@@ -1,12 +1,12 @@
 import { Sparkle } from "./icons";
 
 const words = [
+  "AI-powered platform",
   "Tech & non-tech courses",
   "6+ languages + SQL",
   "Sem-wise labs",
   "AI-graded exams",
   "College dashboards",
-  "Think · Innovate",
 ];
 
 function Track() {
@@ -24,7 +24,7 @@ function Track() {
 
 export function Marquee() {
   return (
-    <div className="relative z-[3] bg-ink text-white py-[18px] overflow-hidden whitespace-nowrap" aria-hidden="true">
+    <div className="relative z-[3] bg-ink-grad text-white py-[18px] overflow-hidden whitespace-nowrap" aria-hidden="true">
       <div className="inline-flex items-center gap-[26px] font-display font-semibold text-[19px] animate-marquee">
         <Track />
         <Track />

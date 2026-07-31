@@ -20,7 +20,7 @@ export function LabsSection() {
             </span>
             <h3 className="text-[28px] sm:text-[34px] md:text-[40px] tracking-[-0.02em] mt-3.5">
               A batch that moves{" "}
-              <em className="font-serif-em not-italic text-royal" style={{ fontStyle: "italic" }}>
+              <em className="font-serif-em not-italic text-cyan" style={{ fontStyle: "italic" }}>
                 together.
               </em>
             </h3>

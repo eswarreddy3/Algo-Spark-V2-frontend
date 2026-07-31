@@ -41,7 +41,7 @@ export function AdminSection() {
             </span>
             <h3 className="text-[28px] sm:text-[34px] md:text-[40px] tracking-[-0.02em] mt-3.5">
               Every cohort,{" "}
-              <em className="font-serif-em not-italic text-royal" style={{ fontStyle: "italic" }}>
+              <em className="font-serif-em not-italic text-gold-deep" style={{ fontStyle: "italic" }}>
                 visible
               </em>{" "}
               in one dashboard.

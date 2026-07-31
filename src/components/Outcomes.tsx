@@ -1,10 +1,12 @@
 import Image from "next/image";
 import { FlowLines } from "./FlowLines";
+import { GlowOrbs } from "./GlowOrbs";
 import { Reveal } from "./Reveal";
 
 export function Outcomes() {
   return (
-    <section className="py-24 sm:py-[100px] bg-ink text-white relative overflow-hidden" id="outcomes">
+    <section className="py-24 sm:py-[100px] bg-ink-grad text-white relative overflow-hidden" id="outcomes">
+      <GlowOrbs variant="dark" />
       <FlowLines
         viewBox="0 0 1440 500"
         lines={[
@@ -45,8 +47,8 @@ export function Outcomes() {
           </p>
         </Reveal>
         <Reveal delay={0.2} className="text-[#AEB6E0] text-lg mt-[26px] max-w-[44ch]">
-          Tech, non-tech, labs, and exams — every submission is scored and logged, feeding a live
-          admin dashboard that gives colleges a real read on the whole cohort, not just the
+          AI grades every code run, email, and paragraph the moment it&apos;s submitted — feeding
+          a live admin dashboard that gives colleges a real read on the whole cohort, not just the
           toppers.
         </Reveal>
       </div>

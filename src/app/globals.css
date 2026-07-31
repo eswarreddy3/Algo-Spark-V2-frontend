@@ -10,15 +10,19 @@
   --glow: #ff8a00;
   --cyan: #1ec8dc;
   --violet: #8b7ce8;
+  --violet-deep: #6d28d9;
+  --magenta: #ec4899;
   --amber: #f5b838;
-  --ink: #101433;
+  --ink: #0d0f2b;
   --ink-soft: #3f456b;
   --ink-mute: #767ca0;
   --paper: #fbfcff;
-  --cream: #f7f8fc;
+  --cream: #f6f6ff;
   --line: #e7ebf6;
-  --blue-grad: linear-gradient(120deg, #2430d8, #4da3f5);
+  --blue-grad: linear-gradient(120deg, #2430d8 0%, #6d28d9 55%, #4da3f5 100%);
   --gold-grad: linear-gradient(120deg, #f59e0b, #fbbf24);
+  --brand-grad: linear-gradient(120deg, #2430d8 0%, #8b5cf6 50%, #ec4899 100%);
+  --ink-grad: linear-gradient(160deg, #0d0f2b 0%, #171a45 55%, #241442 100%);
 }
 
 @theme inline {
@@ -30,6 +34,8 @@
   --color-gold-deep: var(--gold-deep);
   --color-cyan: var(--cyan);
   --color-violet: var(--violet);
+  --color-violet-deep: var(--violet-deep);
+  --color-magenta: var(--magenta);
   --color-amber: var(--amber);
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
@@ -73,6 +79,14 @@ h4 {
   font-weight: 400;
 }
 
+.bg-ink-grad {
+  background-image: var(--ink-grad);
+}
+
+.bg-brand-grad {
+  background-image: var(--brand-grad);
+}
+
 @keyframes marquee {
   to {
     transform: translateX(-50%);
@@ -97,12 +111,26 @@ h4 {
   }
 }
 
+@keyframes pulse-ai {
+  0%,
+  100% {
+    box-shadow: 0 4px 18px rgba(36, 48, 216, 0.14), 0 0 0 0 rgba(139, 124, 232, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 18px rgba(36, 48, 216, 0.14), 0 0 0 6px rgba(139, 124, 232, 0);
+  }
+}
+
 .animate-marquee {
   animation: marquee 26s linear infinite;
 }
 
 .animate-morph {
   animation: morph 12s ease-in-out infinite;
+}
+
+.animate-pulse-ai {
+  animation: pulse-ai 2.6s ease-in-out infinite;
 }
 
 .animate-pulse-ring {
