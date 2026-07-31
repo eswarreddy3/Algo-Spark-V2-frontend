@@ -31,7 +31,7 @@ export function EditorWindow({
           {lang}
         </span>
       </div>
-      <div className="px-[18px] pt-[18px] pb-2 font-mono text-[13px] leading-[1.85]">
+      <div className="px-[18px] pt-[18px] pb-2 font-mono text-[13px] leading-[1.85] overflow-x-auto">
         {children}
       </div>
       <div className="flex items-center gap-3 px-[18px] py-[11px] bg-[#181C3C] border-t border-white/[0.06]">

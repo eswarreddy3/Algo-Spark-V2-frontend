@@ -129,7 +129,7 @@ export function Hero() {
       />
       <div className="relative z-[3] mx-auto max-w-[1180px] px-6">
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-[1.06fr_0.94fr] gap-12 items-center py-11 md:pb-[60px]"
+          className="grid grid-cols-1 lg:grid-cols-[1.06fr_0.94fr] gap-12 items-center py-11 lg:pb-[60px]"
           variants={container}
           initial="hidden"
           animate="show"
