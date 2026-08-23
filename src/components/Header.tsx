@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { MenuIcon, CloseIcon } from "./icons";
 import { Button } from "./Button";
@@ -62,6 +63,9 @@ export function Header() {
           </div>
 
           <div className="hidden lg:flex items-center gap-3.5">
+            <Link href="/student" className="font-semibold text-ink-soft hover:text-ink transition-colors">
+              Student demo
+            </Link>
             <a href="#" className="font-semibold text-ink">
               Login
             </a>
@@ -100,6 +104,9 @@ export function Header() {
                   {l.label}
                 </a>
               ))}
+              <Link href="/student" onClick={() => setOpen(false)} className="py-2.5 font-medium text-ink-soft">
+                Student demo
+              </Link>
               <a href="#" className="py-2.5 font-semibold text-ink">
                 Login
               </a>
