@@ -1,7 +1,8 @@
 import { LABS } from "../labs/catalog";
 import { PRACTICE_PROBLEMS } from "./problems";
-import { COURSES } from "./nontech";
-import type { View } from "../nav";
+import { ALL_COURSES } from "../courses/catalog";
+import { courseTopics } from "./courses";
+import type { NonTechTab, TechTab, View } from "../nav";
 
 export type SearchResult = {
   id: string;
@@ -14,14 +15,17 @@ export type SearchResult = {
   target:
     | { type: "lab"; labId: string; week: number }
     | { type: "problem"; problemId: string }
-    | { type: "view"; view: View };
+    | { type: "view"; view: View }
+    | { type: "tech"; tab: TechTab }
+    | { type: "nontech"; tab: NonTechTab }
+    | { type: "course"; scope: "tech" | "nontech"; courseId: string };
 };
 
 const PAGES: { view: View; title: string; subtitle: string }[] = [
   { view: "dashboard", title: "Dashboard", subtitle: "Your progress at a glance" },
   { view: "labs", title: "Labs", subtitle: "Weekly lab courses" },
-  { view: "tech", title: "Tech practice", subtitle: "Coding problems, SQL and playground" },
-  { view: "nontech", title: "Non-tech", subtitle: "Email, reading and aptitude courses" },
+  { view: "tech", title: "Tech practice", subtitle: "Coding problems, courses, SQL and code compilers" },
+  { view: "nontech", title: "Non-tech", subtitle: "Email writing, paragraph reading and courses" },
   { view: "exam", title: "Exam", subtitle: "Placement mock papers" },
   { view: "leaderboard", title: "Leaderboard", subtitle: "Section, branch and college ranks" },
   { view: "profile", title: "Profile", subtitle: "Badges, activity and points" },
@@ -67,7 +71,7 @@ export function searchAll(query: string, limit = 8): SearchResult[] {
     }
   }
 
-  for (const course of COURSES) {
+  for (const course of ALL_COURSES) {
     const rank = rankOf(course.title, course.blurb.toLowerCase(), q);
     if (rank !== null) {
       out.push({
@@ -75,8 +79,8 @@ export function searchAll(query: string, limit = 8): SearchResult[] {
         kind: "Course",
         rank,
         title: course.title,
-        subtitle: `${course.modules.length} modules · non-tech`,
-        target: { type: "view", view: "nontech" },
+        subtitle: `${courseTopics(course).length} topics · ${course.scope === "tech" ? "tech" : "non-tech"}`,
+        target: { type: "course", scope: course.scope, courseId: course.id },
       });
     }
   }

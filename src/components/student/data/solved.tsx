@@ -6,6 +6,10 @@
  */
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { PRACTICE_PROBLEMS } from "./problems";
+import { SQL_PROBLEMS } from "./sqlProblems";
+
+/** Coding and SQL problems share one solved list. */
+const ALL_PROBLEMS = [...PRACTICE_PROBLEMS, ...SQL_PROBLEMS];
 
 const STORAGE_KEY = "algospark.solved.v1";
 
@@ -18,7 +22,7 @@ type Ctx = {
 
 const SolvedContext = createContext<Ctx | null>(null);
 
-const seed = () => PRACTICE_PROBLEMS.filter((p) => p.solvedSeed).map((p) => p.exercise.id);
+const seed = () => ALL_PROBLEMS.filter((p) => p.solvedSeed).map((p) => p.exercise.id);
 
 export function SolvedProvider({
   children,
@@ -53,7 +57,7 @@ export function SolvedProvider({
   const markSolved = useCallback(
     (id: string) => {
       if (solved.includes(id)) return;
-      const problem = PRACTICE_PROBLEMS.find((p) => p.exercise.id === id);
+      const problem = ALL_PROBLEMS.find((p) => p.exercise.id === id);
       setSolved((prev) => [...prev, id]);
       onSolved?.(id, problem?.exercise.points ?? 0);
     },

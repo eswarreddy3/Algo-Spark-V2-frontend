@@ -4,7 +4,7 @@ import React, { useMemo } from "react";
 import {
   Award, BookOpen, CalendarDays, Code2, Database, Flame, FlaskConical, Mail, Star, Target, Trophy, Zap,
 } from "lucide-react";
-import { C, FD, FM, blueGrad } from "../theme";
+import { C, FD, FM, blueGrad, tint } from "../theme";
 import { Card, Kicker, Pill, ProgressBar } from "../ui";
 import { LABS } from "../labs/catalog";
 import { useLabsProgress } from "../labs/progress";
@@ -63,7 +63,7 @@ export function ProfilePage({ xp }: { xp: number }) {
         <div style={{ height: 96, background: blueGrad }} />
         <div style={{ padding: "0 24px 24px", marginTop: -38 }}>
           <div style={{ display: "flex", alignItems: "flex-end", gap: 18, flexWrap: "wrap" }}>
-            <div style={{ width: 88, height: 88, borderRadius: 999, background: "#fff", padding: 4, flex: "none" }}>
+            <div style={{ width: 88, height: 88, borderRadius: 999, background: C.white, padding: 4, flex: "none" }}>
               <div style={{ width: "100%", height: "100%", borderRadius: 999, background: "linear-gradient(135deg,#101433,#26327A)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FD, fontWeight: 700, fontSize: 30 }}>
                 AK
               </div>
@@ -150,7 +150,7 @@ export function ProfilePage({ xp }: { xp: number }) {
                   title={b.earned ? `Earned ${b.when || "recently"}` : "Not earned yet"}
                   style={{ textAlign: "center", padding: 14, borderRadius: 14, border: `1px solid ${C.line}`, opacity: b.earned ? 1 : 0.45 }}
                 >
-                  <div style={{ width: 44, height: 44, borderRadius: 13, background: `${b.c}18`, color: b.c, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 9px" }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 13, background: tint(b.c, 10), color: b.c, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 9px" }}>
                     <b.icon size={22} />
                   </div>
                   <div style={{ fontFamily: FD, fontWeight: 600, fontSize: 13 }}>{b.t}</div>
@@ -205,7 +205,9 @@ function BreakdownRow({
 }
 
 function ActivityHeatmap() {
-  const levels = ["#EEF1FA", "#C9D6FB", "#8FB0F6", "#4F7FEE", "#2430D8"];
+  // One hue, empty to full. Built from tokens so the empty step sits just off
+  // the surface and the full step stays readable in both themes.
+  const levels = [C.cream, tint(C.royal, 28), tint(C.royal, 50), tint(C.royal, 75), C.royal];
   const weeks = Math.ceil(ACTIVITY.length / 7);
   const totalTasks = ACTIVITY.reduce((a, b) => a + b, 0);
   const activeDays = ACTIVITY.filter((v) => v > 0).length;

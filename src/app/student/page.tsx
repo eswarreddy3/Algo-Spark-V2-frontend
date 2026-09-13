@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import StudentApp from "@/components/student/StudentApp";
+import { AuthGuard } from "@/components/AuthGuard";
 
 export const metadata: Metadata = {
   title: "Student Prototype — AlgoSpark",
@@ -8,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function StudentPrototypePage() {
-  return <StudentApp />;
+  return (
+    <AuthGuard role="student">
+      <StudentApp />
+    </AuthGuard>
+  );
 }

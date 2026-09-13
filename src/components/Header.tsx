@@ -6,6 +6,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { MenuIcon, CloseIcon } from "./icons";
 import { Button } from "./Button";
+import { ROLE_HOME, signOut, useSession } from "@/lib/auth";
 
 const navLinks = [
   { href: "#journey", label: "How it works" },
@@ -18,6 +19,7 @@ const navLinks = [
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const session = useSession();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
@@ -63,12 +65,20 @@ export function Header() {
           </div>
 
           <div className="hidden lg:flex items-center gap-3.5">
-            <Link href="/student" className="font-semibold text-ink-soft hover:text-ink transition-colors">
-              Student demo
-            </Link>
-            <a href="#" className="font-semibold text-ink">
-              Login
-            </a>
+            {session ? (
+              <>
+                <Link href={ROLE_HOME[session.role]} className="font-semibold text-ink-soft hover:text-ink transition-colors">
+                  Dashboard
+                </Link>
+                <button onClick={signOut} className="font-semibold text-ink cursor-pointer">
+                  Log out
+                </button>
+              </>
+            ) : (
+              <Link href="/login" className="font-semibold text-ink">
+                Login
+              </Link>
+            )}
             <Button href="#book" className="!px-5 !py-2.5 !text-[15px]">
               Book a demo
             </Button>
@@ -104,12 +114,20 @@ export function Header() {
                   {l.label}
                 </a>
               ))}
-              <Link href="/student" onClick={() => setOpen(false)} className="py-2.5 font-medium text-ink-soft">
-                Student demo
-              </Link>
-              <a href="#" className="py-2.5 font-semibold text-ink">
-                Login
-              </a>
+              {session ? (
+                <>
+                  <Link href={ROLE_HOME[session.role]} onClick={() => setOpen(false)} className="py-2.5 font-medium text-ink-soft">
+                    Dashboard
+                  </Link>
+                  <button onClick={() => { signOut(); setOpen(false); }} className="py-2.5 text-left font-semibold text-ink cursor-pointer">
+                    Log out
+                  </button>
+                </>
+              ) : (
+                <Link href="/login" onClick={() => setOpen(false)} className="py-2.5 font-semibold text-ink">
+                  Login
+                </Link>
+              )}
               <Button href="#book" className="justify-center mt-2" >
                 Book a demo
               </Button>

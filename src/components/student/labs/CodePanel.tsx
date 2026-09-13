@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { CheckCircle2, ChevronDown, Circle, Clock, Loader2, Play, RotateCcw, Send, XCircle } from "lucide-react";
-import { C, EDITOR, FB, FD, FM, blueGrad, goldGrad } from "../theme";
+import { C, EDITOR, FB, FD, FM, blueGrad, goldGrad, tint } from "../theme";
 import { Card, Pill } from "../ui";
 import { CodeEditor } from "./CodeEditor";
 import { runCode, type RunResult, type TestResult } from "./runner";
@@ -111,10 +111,10 @@ export function CodePanel({
       <Card style={{ padding: 20 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <div style={{ fontFamily: FD, fontWeight: 700, fontSize: 20 }}>{exercise.title}</div>
-          <Pill color={DIFF_COLOR[exercise.difficulty]} bg={`${DIFF_COLOR[exercise.difficulty]}18`}>
+          <Pill color={DIFF_COLOR[exercise.difficulty]} bg={tint(DIFF_COLOR[exercise.difficulty], 10)}>
             {exercise.difficulty}
           </Pill>
-          <Pill color={C.goldDeep} bg="#FFF4E0">{exercise.points} pts</Pill>
+          <Pill color={C.goldDeep} bg={C.warnBg}>{exercise.points} pts</Pill>
           {exercise.targetComplexity && <Pill>{exercise.targetComplexity}</Pill>}
         </div>
 
@@ -376,7 +376,7 @@ function TestRow({ test, first, open, onToggle }: { test: TestResult; first: boo
     <div style={{ borderTop: first ? "none" : `1px solid ${C.line}` }}>
       <button
         onClick={onToggle}
-        style={{ width: "100%", textAlign: "left", border: "none", background: "#fff", padding: "12px 16px", display: "flex", alignItems: "center", gap: 11, cursor: "pointer" }}
+        style={{ width: "100%", textAlign: "left", border: "none", background: C.white, padding: "12px 16px", display: "flex", alignItems: "center", gap: 11, cursor: "pointer" }}
       >
         {test.status === "passed" ? <CheckCircle2 size={17} color={color} /> : test.status === "failed" ? <XCircle size={17} color={color} /> : <Circle size={15} color={color} />}
         <span style={{ flex: 1, fontSize: 14, fontWeight: 500 }}>{test.name}</span>

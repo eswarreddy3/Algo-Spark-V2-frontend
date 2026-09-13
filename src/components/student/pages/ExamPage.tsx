@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle, Award, Check, ClipboardCheck, Clock, Code2, Flag, ListChecks, Mail, FileText, ShieldCheck,
 } from "lucide-react";
-import { C, FB, FD, FM, blueGrad, goldGrad } from "../theme";
+import { C, FB, FD, FM, blueGrad, goldGrad, tint } from "../theme";
 import { Card, H2, Kicker, ProgressBar, Serif } from "../ui";
 import { CodePanel } from "../labs/CodePanel";
 import { EXAM, examCodingExercise, type ExamSection } from "../data/exam";
@@ -114,7 +114,7 @@ function Brief({ onStart }: { onStart: () => void }) {
               const Icon = SECTION_ICON[s.kind];
               return (
                 <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", border: `1px solid ${C.line}`, borderRadius: 12 }}>
-                  <span style={{ width: 38, height: 38, flex: "none", borderRadius: 10, background: `${SECTION_COLOR[s.kind]}18`, color: SECTION_COLOR[s.kind], display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <span style={{ width: 38, height: 38, flex: "none", borderRadius: 10, background: tint(SECTION_COLOR[s.kind], 10), color: SECTION_COLOR[s.kind], display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <Icon size={19} />
                   </span>
                   <span style={{ flex: 1, fontFamily: FD, fontWeight: 600, fontSize: 15 }}>{s.label}</span>
@@ -145,7 +145,7 @@ function Brief({ onStart }: { onStart: () => void }) {
               </li>
             ))}
           </ul>
-          <div style={{ marginTop: 16, background: "#FFF4E0", color: "#8A5A00", borderRadius: 12, padding: "12px 14px", fontSize: 13.5, display: "flex", gap: 9, lineHeight: 1.55 }}>
+          <div style={{ marginTop: 16, background: C.warnBg, color: C.warnInk, borderRadius: 12, padding: "12px 14px", fontSize: 13.5, display: "flex", gap: 9, lineHeight: 1.55 }}>
             <AlertTriangle size={16} style={{ flex: "none", marginTop: 1 }} />
             Once you start, the timer keeps running even if you close the tab.
           </div>
@@ -245,7 +245,7 @@ function Running({
               style={{
                 flex: "1 1 180px", padding: "11px 13px", borderRadius: 12,
                 border: `1.5px solid ${active ? SECTION_COLOR[s.kind] : C.line}`,
-                background: active ? `${SECTION_COLOR[s.kind]}0F` : "#fff", cursor: "pointer", textAlign: "left",
+                background: active ? tint(SECTION_COLOR[s.kind], 6) : C.white, cursor: "pointer", textAlign: "left",
                 display: "flex", alignItems: "center", gap: 9, fontFamily: FB,
               }}
             >
@@ -279,7 +279,7 @@ function Running({
         {sectionIndex > 0 && (
           <button
             onClick={() => setSectionIndex(sectionIndex - 1)}
-            style={{ border: `1px solid ${C.line}`, background: "#fff", borderRadius: 11, padding: "11px 18px", fontFamily: FB, fontWeight: 600, fontSize: 14, cursor: "pointer" }}
+            style={{ border: `1px solid ${C.line}`, background: C.white, borderRadius: 11, padding: "11px 18px", fontFamily: FB, fontWeight: 600, fontSize: 14, cursor: "pointer" }}
           >
             Previous section
           </button>
@@ -408,7 +408,7 @@ function SectionBody({
                       onClick={() => setAnswers((a) => ({ ...a, reading: { ...a.reading, [q.id]: k } }))}
                       style={{
                         textAlign: "left", cursor: "pointer", border: `1.5px solid ${chosen ? C.royal : C.line}`,
-                        background: chosen ? "rgba(47,91,240,.05)" : "#fff", borderRadius: 11, padding: "10px 13px",
+                        background: chosen ? tint(C.royal, 7) : C.white, borderRadius: 11, padding: "10px 13px",
                         fontFamily: FB, fontSize: 14, color: C.ink,
                       }}
                     >
@@ -453,7 +453,7 @@ function McqSection({
             aria-pressed={flagged}
             style={{
               marginLeft: "auto", border: `1px solid ${flagged ? C.goldDeep : C.line}`,
-              background: flagged ? "#FFF4E0" : "#fff", color: flagged ? C.goldDeep : C.inkSoft, borderRadius: 999,
+              background: flagged ? C.warnBg : C.white, color: flagged ? C.goldDeep : C.inkSoft, borderRadius: 999,
               padding: "6px 12px", cursor: "pointer", fontFamily: FB, fontSize: 13, fontWeight: 600,
               display: "flex", alignItems: "center", gap: 6,
             }}
@@ -471,11 +471,11 @@ function McqSection({
               onClick={() => onAnswer(question.id, k)}
               style={{
                 textAlign: "left", cursor: "pointer", border: `1.5px solid ${chosen === k ? C.royal : C.line}`,
-                background: chosen === k ? "rgba(47,91,240,.05)" : "#fff", borderRadius: 12, padding: "13px 15px",
+                background: chosen === k ? tint(C.royal, 7) : C.white, borderRadius: 12, padding: "13px 15px",
                 fontFamily: FB, fontSize: 15, color: C.ink, display: "flex", alignItems: "center", gap: 11,
               }}
             >
-              <span style={{ width: 22, height: 22, flex: "none", borderRadius: 999, border: `1.5px solid ${chosen === k ? C.royal : C.line}`, background: chosen === k ? C.royal : "#fff", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FM, fontSize: 11 }}>
+              <span style={{ width: 22, height: 22, flex: "none", borderRadius: 999, border: `1.5px solid ${chosen === k ? C.royal : C.line}`, background: chosen === k ? C.royal : C.white, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FM, fontSize: 11 }}>
                 {String.fromCharCode(65 + k)}
               </span>
               {opt}
@@ -487,7 +487,7 @@ function McqSection({
           <button
             onClick={() => setIndex(Math.max(0, index - 1))}
             disabled={index === 0}
-            style={{ border: `1px solid ${C.line}`, background: "#fff", borderRadius: 11, padding: "10px 16px", fontFamily: FB, fontWeight: 600, fontSize: 14, cursor: index === 0 ? "not-allowed" : "pointer", opacity: index === 0 ? 0.5 : 1 }}
+            style={{ border: `1px solid ${C.line}`, background: C.white, borderRadius: 11, padding: "10px 16px", fontFamily: FB, fontWeight: 600, fontSize: 14, cursor: index === 0 ? "not-allowed" : "pointer", opacity: index === 0 ? 0.5 : 1 }}
           >
             Previous
           </button>
@@ -516,7 +516,8 @@ function McqSection({
                 style={{
                   height: 40, borderRadius: 10, cursor: "pointer", fontFamily: FM, fontSize: 13, fontWeight: 600,
                   border: `2px solid ${active ? C.ink : "transparent"}`,
-                  background: isFlagged ? "#FFF4E0" : answered ? "rgba(18,184,134,.16)" : C.cream,
+                  // Strong enough to tell apart on a dark surface, not just a light one.
+                  background: isFlagged ? tint(C.goldDeep, 26) : answered ? tint(C.green, 26) : C.cream,
                   color: isFlagged ? C.goldDeep : answered ? C.green : C.inkMute,
                 }}
               >
@@ -526,8 +527,8 @@ function McqSection({
           })}
         </div>
         <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 7, fontSize: 12.5, color: C.inkSoft }}>
-          <LegendRow color="rgba(18,184,134,.16)" label="Answered" />
-          <LegendRow color="#FFF4E0" label="Flagged for review" />
+          <LegendRow color={tint(C.green, 26)} label="Answered" />
+          <LegendRow color={tint(C.goldDeep, 26)} label="Flagged for review" />
           <LegendRow color={C.cream} label="Not answered" />
         </div>
       </Card>
@@ -563,12 +564,12 @@ function ConfirmSubmit({
       role="dialog"
       aria-modal="true"
       aria-label="Submit exam"
-      style={{ position: "fixed", inset: 0, zIndex: 80, background: "rgba(16,20,51,.45)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
+      style={{ position: "fixed", inset: 0, zIndex: 80, background: C.scrim, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
       onClick={onCancel}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        style={{ background: "#fff", borderRadius: 18, padding: 24, maxWidth: 460, width: "100%", boxShadow: "0 30px 70px rgba(16,20,51,.3)" }}
+        style={{ background: C.white, borderRadius: 18, padding: 24, maxWidth: 460, width: "100%", boxShadow: `0 30px 70px ${C.shadow}` }}
       >
         <div style={{ fontFamily: FD, fontWeight: 700, fontSize: 20 }}>Submit the paper?</div>
         <p style={{ color: C.inkSoft, fontSize: 14.5, marginTop: 8, lineHeight: 1.6 }}>
@@ -588,7 +589,7 @@ function ConfirmSubmit({
         </div>
 
         {incomplete.length > 0 && (
-          <div style={{ marginTop: 14, background: "#FFF4E0", color: "#8A5A00", borderRadius: 12, padding: "11px 13px", fontSize: 13.5 }}>
+          <div style={{ marginTop: 14, background: C.warnBg, color: C.warnInk, borderRadius: 12, padding: "11px 13px", fontSize: 13.5 }}>
             {incomplete.length} section{incomplete.length === 1 ? " is" : "s are"} incomplete. Unanswered questions score zero.
           </div>
         )}
@@ -596,7 +597,7 @@ function ConfirmSubmit({
         <div style={{ display: "flex", gap: 10, marginTop: 20, justifyContent: "flex-end" }}>
           <button
             onClick={onCancel}
-            style={{ border: `1px solid ${C.line}`, background: "#fff", borderRadius: 11, padding: "11px 18px", fontFamily: FB, fontWeight: 600, fontSize: 14, cursor: "pointer" }}
+            style={{ border: `1px solid ${C.line}`, background: C.white, borderRadius: 11, padding: "11px 18px", fontFamily: FB, fontWeight: 600, fontSize: 14, cursor: "pointer" }}
           >
             Keep working
           </button>
@@ -675,7 +676,7 @@ function Result({
       <div style={{ display: "flex", justifyContent: "center", gap: 12, marginTop: 24 }}>
         <button
           onClick={onRestart}
-          style={{ border: `1px solid ${C.line}`, background: "#fff", borderRadius: 12, padding: "11px 20px", fontFamily: FB, fontWeight: 600, fontSize: 14.5, cursor: "pointer" }}
+          style={{ border: `1px solid ${C.line}`, background: C.white, borderRadius: 12, padding: "11px 20px", fontFamily: FB, fontWeight: 600, fontSize: 14.5, cursor: "pointer" }}
         >
           Back to exams
         </button>
@@ -696,7 +697,7 @@ function ResultCard({
   tone: "good" | "warn" | "pending";
 }) {
   const color = tone === "good" ? C.green : tone === "warn" ? C.goldDeep : C.inkMute;
-  const bg = tone === "good" ? C.greenBg : tone === "warn" ? "#FFF4E0" : C.cream;
+  const bg = tone === "good" ? C.greenBg : tone === "warn" ? C.warnBg : C.cream;
   return (
     <Card style={{ padding: 18 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>

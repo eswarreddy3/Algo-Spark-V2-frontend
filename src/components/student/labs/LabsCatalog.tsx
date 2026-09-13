@@ -2,7 +2,7 @@
 
 import React from "react";
 import { ArrowRight, CalendarClock, CheckCircle2, FlaskConical, MapPin, RotateCcw, Sparkles, User2 } from "lucide-react";
-import { C, FB, FD, FM } from "../theme";
+import { C, FB, FD, FM, tint } from "../theme";
 import { Card, H2, Kicker, Pill, ProgressBar, Serif } from "../ui";
 import { LABS } from "./catalog";
 import { useLabsProgress } from "./progress";
@@ -35,16 +35,16 @@ export function LabsCatalog({ onOpen }: { onOpen: (labId: string, week: number) 
         <button
           onClick={resetProgress}
           title="Restore the demo to its starting state"
-          style={{ border: `1px solid ${C.line}`, background: "#fff", color: C.inkMute, borderRadius: 11, padding: "9px 14px", fontFamily: FB, fontSize: 13.5, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 7 }}
+          style={{ border: `1px solid ${C.line}`, background: C.white, color: C.inkMute, borderRadius: 11, padding: "9px 14px", fontFamily: FB, fontSize: 13.5, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 7 }}
         >
           <RotateCcw size={14} /> Reset demo progress
         </button>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 14, marginTop: 22 }}>
-        <SummaryTile icon={FlaskConical} label="Labs enrolled" value={String(LABS.length)} color={C.royal} bg="rgba(47,91,240,.1)" />
+        <SummaryTile icon={FlaskConical} label="Labs enrolled" value={String(LABS.length)} color={C.royal} bg={tint(C.royal, 12)} />
         <SummaryTile icon={CheckCircle2} label="Weeks completed" value={`${totals.completed}/${totals.total}`} color={C.green} bg={C.greenBg} />
-        <SummaryTile icon={Sparkles} label="Lab XP earned" value={totals.points.toLocaleString()} color={C.goldDeep} bg="#FFF4E0" />
+        <SummaryTile icon={Sparkles} label="Lab XP earned" value={totals.points.toLocaleString()} color={C.goldDeep} bg={C.warnBg} />
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 16 }}>
@@ -99,7 +99,7 @@ function LabCard({ lab, onOpen }: { lab: Lab; onOpen: (labId: string, week: numb
             <span style={{ fontFamily: FM, fontSize: 11.5, color: lab.accent, letterSpacing: ".1em" }}>{lab.code}</span>
             <Pill>{lab.semester}</Pill>
             {finished && <Pill color={C.green} bg={C.greenBg}>completed</Pill>}
-            {notStarted && <Pill color={C.goldDeep} bg="#FFF4E0">not started</Pill>}
+            {notStarted && <Pill color={C.goldDeep} bg={C.warnBg}>not started</Pill>}
           </div>
           <div style={{ fontFamily: FD, fontWeight: 700, fontSize: 20, marginTop: 7 }}>{lab.name}</div>
           <p style={{ color: C.inkSoft, fontSize: 14.5, marginTop: 6, lineHeight: 1.6 }}>{lab.description}</p>

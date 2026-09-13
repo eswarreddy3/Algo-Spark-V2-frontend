@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { Flame, Minus, Search, TrendingDown, TrendingUp, Trophy } from "lucide-react";
-import { C, FB, FD, FM, blueGrad } from "../theme";
+import { C, FB, FD, FM, blueGrad, tint } from "../theme";
 import { Card, H2, Kicker, Pill, Serif } from "../ui";
 import { LEADERBOARDS, SCOPE_META, type LeaderRow, type Scope } from "../data/leaderboard";
 
@@ -49,7 +49,7 @@ export function LeaderboardPage() {
               onClick={() => setScope(s)}
               aria-pressed={scope === s}
               style={{
-                border: `1.5px solid ${scope === s ? C.royal : C.line}`, background: scope === s ? "rgba(47,91,240,.06)" : "#fff",
+                border: `1.5px solid ${scope === s ? C.royal : C.line}`, background: scope === s ? tint(C.royal, 8) : C.white,
                 color: scope === s ? C.royal : C.inkSoft, borderRadius: 999, padding: "8px 18px", cursor: "pointer",
                 fontFamily: FB, fontWeight: 600, fontSize: 13.5,
               }}
@@ -59,7 +59,7 @@ export function LeaderboardPage() {
           ))}
         </div>
         <Pill>{SCOPE_META[scope].label}</Pill>
-        <label style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 9, background: "#fff", border: `1px solid ${C.line}`, borderRadius: 11, padding: "9px 12px", minWidth: 220 }}>
+        <label style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 9, background: C.white, border: `1px solid ${C.line}`, borderRadius: 11, padding: "9px 12px", minWidth: 220 }}>
           <Search size={16} color={C.inkMute} />
           <input
             value={query}
@@ -103,7 +103,7 @@ export function LeaderboardPage() {
                 </div>
                 <div style={{ fontFamily: FD, fontWeight: 600, fontSize: 14 }}>{r.name.split(" ")[0]}</div>
                 <div style={{ fontFamily: FM, fontSize: 12, color: C.inkMute }}>{r.points.toLocaleString()}</div>
-                <div style={{ height, borderRadius: "12px 12px 0 0", background: `linear-gradient(180deg,${medal},${medal}88)`, marginTop: 8, display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: 10, fontFamily: FD, fontWeight: 700, color: "#fff", fontSize: 22 }}>
+                <div style={{ height, borderRadius: "12px 12px 0 0", background: `linear-gradient(180deg,${medal},${tint(medal, 53)})`, marginTop: 8, display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: 10, fontFamily: FD, fontWeight: 700, color: "#fff", fontSize: 22 }}>
                   {r.rank}
                 </div>
               </div>
@@ -151,7 +151,7 @@ function Row({ row }: { row: LeaderRow }) {
       className="as-row"
       style={{
         display: "flex", alignItems: "center", gap: 14, padding: "12px 18px", borderTop: `1px solid ${C.line}`,
-        background: row.you ? "rgba(47,91,240,.05)" : "#fff",
+        background: row.you ? tint(C.royal, 7) : C.white,
       }}
     >
       <span style={{ width: 30, fontFamily: FD, fontWeight: 700, color: row.rank <= 3 ? C.goldDeep : C.inkMute, display: "flex", alignItems: "center", gap: 4 }}>
@@ -164,7 +164,7 @@ function Row({ row }: { row: LeaderRow }) {
       <span style={{ flex: 1, minWidth: 0 }}>
         <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ fontWeight: row.you ? 700 : 600, fontSize: 15, color: row.you ? C.royal : C.ink }}>{row.name}</span>
-          {row.you && <Pill color={C.royal} bg="rgba(47,91,240,.1)">YOU</Pill>}
+          {row.you && <Pill color={C.royal} bg={tint(C.royal, 12)}>YOU</Pill>}
         </span>
         <span style={{ display: "block", fontSize: 12.5, color: C.inkMute }}>{row.group}</span>
       </span>

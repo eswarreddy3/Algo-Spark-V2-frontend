@@ -1,19 +1,13 @@
 /**
  * Design tokens for the student app.
  *
- * Colours mirror the marketing site's CSS variables in `globals.css`; the font
- * stacks point at the `next/font` variables declared in the root layout, so the
- * student app never loads a second copy of the type.
+ * Colours are the shared, themed tokens in ../theme (light and dark), the
+ * same palette the admin console uses. The font stacks point at the
+ * `next/font` variables declared in the root layout, so the student app never
+ * loads a second copy of the type. Gradients and the editor surface are fixed:
+ * they are dark in both themes.
  */
-export const C = {
-  royal: "#2430D8", blue: "#2F5BF0", sky: "#4DA3F5", skyLt: "#7FC0FA",
-  gold: "#FBBF24", goldDeep: "#F59E0B", glow: "#FF8A00",
-  cyan: "#1EC8DC", violet: "#8B7CE8", amber: "#F5B838",
-  ink: "#101433", inkSoft: "#3F456B", inkMute: "#767CA0",
-  paper: "#F6F8FD", cream: "#F1F4FB", white: "#fff", line: "#E7EBF6",
-  green: "#12B886", greenBg: "#E4F7EF",
-  red: "#E5484D", redBg: "#FDECEC",
-} as const;
+export { C, tint } from "../theme/tokens";
 
 export const FD = "var(--font-sora), system-ui, sans-serif";
 export const FB = "var(--font-instrument-sans), system-ui, sans-serif";

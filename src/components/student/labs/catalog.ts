@@ -1,11 +1,13 @@
 import type { Lab } from "./types";
+import { C } from "../../theme/tokens";
 import { DS_WEEKS } from "./content/ds";
 import { DBMS_WEEKS } from "./content/dbms";
 import { OS_WEEKS } from "./content/os";
 
 /**
  * The lab catalog. In the real app this comes from the courses API for the
- * student's section; the shape below is what that endpoint returns.
+ * student's section; the shape below is what that endpoint returns. Accents
+ * are theme tokens so each lab keeps a readable hue in light and dark.
  */
 export const LABS: Lab[] = [
   {
@@ -18,7 +20,7 @@ export const LABS: Lab[] = [
     faculty: "Dr. Meera Raghavan",
     schedule: "Mon & Thu · 2:00 PM",
     room: "Lab 204",
-    accent: "#2430D8",
+    accent: C.royal,
     weeks: DS_WEEKS,
   },
   {
@@ -31,7 +33,7 @@ export const LABS: Lab[] = [
     faculty: "Prof. Anand Krishnan",
     schedule: "Tue · 10:00 AM",
     room: "Lab 108",
-    accent: "#1EC8DC",
+    accent: C.cyan,
     weeks: DBMS_WEEKS,
   },
   {
@@ -44,7 +46,7 @@ export const LABS: Lab[] = [
     faculty: "Dr. Suchitra Menon",
     schedule: "Wed & Fri · 11:30 AM",
     room: "Lab 204",
-    accent: "#8B7CE8",
+    accent: C.violet,
     weeks: OS_WEEKS,
   },
 ];

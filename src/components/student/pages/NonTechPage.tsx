@@ -1,57 +1,27 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import {
-  BookOpen, CheckCircle2, ChevronDown, Circle, Clock, Eye, EyeOff, FileText, Info, ListChecks,
-  Mail, PenLine, Play, RotateCcw, Sparkles, XCircle,
+  CheckCircle2, Clock, Eye, EyeOff, Info, ListChecks, PenLine, RotateCcw, Sparkles, XCircle,
 } from "lucide-react";
-import { C, FB, FD, FM, blueGrad, goldGrad } from "../theme";
-import { Card, H2, Kicker, Pill, ProgressBar, Serif } from "../ui";
+import { C, FB, FD, FM, blueGrad, goldGrad, tint } from "../theme";
+import { Card, Pill, ProgressBar } from "../ui";
 import { analyzeEmail, type EmailFeedback, type EmailPrompt } from "../data/emailFeedback";
-import { COURSES, EMAIL_PROMPTS, PASSAGES, type Course, type Passage } from "../data/nontech";
-
-const TABS = [
-  { id: "email", label: "Email writing", icon: Mail },
-  { id: "reading", label: "Paragraph reading", icon: FileText },
-  { id: "courses", label: "Courses", icon: BookOpen },
-] as const;
-
-type Tab = (typeof TABS)[number]["id"];
+import { EMAIL_PROMPTS, PASSAGES, type Passage } from "../data/nontech";
+import { CoursesSection } from "../courses/CoursesSection";
+import { useNav } from "../nav";
 
 export function NonTechPage() {
-  const [tab, setTab] = useState<Tab>("email");
+  const { nonTechRoute, setNonTechRoute } = useNav();
+  const tab = nonTechRoute.tab;
 
   return (
     <div>
-      <Kicker>Non-Tech</Kicker>
-      <H2>
-        Placements test <Serif>more</Serif> than code.
-      </H2>
-      <p style={{ color: C.inkSoft, marginTop: 8, fontSize: 15.5, maxWidth: 660 }}>
-        Written communication, comprehension and aptitude carry as much weight as the coding round. Practise them the
-        same way — with a prompt, a clock and feedback you can act on.
-      </p>
-
-      <div style={{ display: "flex", gap: 6, marginTop: 18, borderBottom: `1px solid ${C.line}`, flexWrap: "wrap" }}>
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            style={{
-              border: "none", background: "none", cursor: "pointer", padding: "11px 14px", display: "flex",
-              alignItems: "center", gap: 8, fontFamily: FB, fontWeight: 600, fontSize: 14.5,
-              color: tab === t.id ? C.royal : C.inkMute,
-              borderBottom: `2.5px solid ${tab === t.id ? C.royal : "transparent"}`, marginBottom: -1,
-            }}
-          >
-            <t.icon size={17} /> {t.label}
-          </button>
-        ))}
-      </div>
-
       {tab === "email" && <EmailWriting />}
       {tab === "reading" && <Reading />}
-      {tab === "courses" && <Courses />}
+      {tab === "courses" && (
+        <CoursesSection scope="nontech" route={nonTechRoute.course} setRoute={(course) => setNonTechRoute({ ...nonTechRoute, course })} />
+      )}
     </div>
   );
 }
@@ -76,7 +46,7 @@ function EmailWriting() {
   }
 
   return (
-    <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 14 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
         {EMAIL_PROMPTS.map((p) => (
           <button
@@ -85,7 +55,7 @@ function EmailWriting() {
             aria-pressed={p.id === promptId}
             style={{
               border: `1.5px solid ${p.id === promptId ? C.royal : C.line}`,
-              background: p.id === promptId ? "rgba(47,91,240,.06)" : "#fff",
+              background: p.id === promptId ? tint(C.royal, 8) : C.white,
               color: p.id === promptId ? C.royal : C.inkSoft, borderRadius: 12, padding: "10px 16px",
               cursor: "pointer", fontFamily: FB, fontWeight: 600, fontSize: 14,
             }}
@@ -102,7 +72,7 @@ function EmailWriting() {
           </div>
           <p style={{ color: C.inkSoft, fontSize: 14.5, marginTop: 8, lineHeight: 1.6 }}>{prompt.brief}</p>
           <div style={{ display: "flex", gap: 7, marginTop: 12, flexWrap: "wrap" }}>
-            <Pill color={C.goldDeep} bg="#FFF4E0">
+            <Pill color={C.goldDeep} bg={C.warnBg}>
               {prompt.idealWords[0]}–{prompt.idealWords[1]} words
             </Pill>
             {prompt.mustMention.map((m) => (
@@ -137,7 +107,7 @@ function EmailWriting() {
             {text && (
               <button
                 onClick={() => { setDrafts((d) => ({ ...d, [promptId]: "" })); setFeedback(null); }}
-                style={{ border: `1px solid ${C.line}`, background: "#fff", borderRadius: 11, padding: "10px 14px", fontFamily: FB, fontWeight: 600, fontSize: 13.5, cursor: "pointer", display: "flex", alignItems: "center", gap: 7 }}
+                style={{ border: `1px solid ${C.line}`, background: C.white, borderRadius: 11, padding: "10px 14px", fontFamily: FB, fontWeight: 600, fontSize: 13.5, cursor: "pointer", display: "flex", alignItems: "center", gap: 7 }}
               >
                 <RotateCcw size={14} /> Clear
               </button>
@@ -217,7 +187,7 @@ function EmailWriting() {
               </ol>
               <button
                 onClick={() => setShowModel((v) => !v)}
-                style={{ marginTop: 14, border: `1px solid ${C.line}`, background: "#fff", borderRadius: 11, padding: "9px 14px", fontFamily: FB, fontWeight: 600, fontSize: 13.5, cursor: "pointer", display: "flex", alignItems: "center", gap: 7 }}
+                style={{ marginTop: 14, border: `1px solid ${C.line}`, background: C.white, borderRadius: 11, padding: "9px 14px", fontFamily: FB, fontWeight: 600, fontSize: 13.5, cursor: "pointer", display: "flex", alignItems: "center", gap: 7 }}
               >
                 {showModel ? <EyeOff size={15} /> : <Eye size={15} />} {showModel ? "Hide" : "Show"} a model answer
               </button>
@@ -252,7 +222,7 @@ function Reading() {
   }
 
   return (
-    <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 14 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
         {PASSAGES.map((p) => (
           <button
@@ -261,7 +231,7 @@ function Reading() {
             aria-pressed={p.id === passageId}
             style={{
               border: `1.5px solid ${p.id === passageId ? C.royal : C.line}`,
-              background: p.id === passageId ? "rgba(47,91,240,.06)" : "#fff",
+              background: p.id === passageId ? tint(C.royal, 8) : C.white,
               color: p.id === passageId ? C.royal : C.inkSoft, borderRadius: 12, padding: "10px 16px",
               cursor: "pointer", fontFamily: FB, fontWeight: 600, fontSize: 14,
             }}
@@ -295,7 +265,7 @@ function Reading() {
                 <ListChecks size={16} color={C.royal} /> Comprehension
               </div>
               {submitted ? (
-                <Pill color={score === passage.questions.length ? C.green : C.goldDeep} bg={score === passage.questions.length ? C.greenBg : "#FFF4E0"}>
+                <Pill color={score === passage.questions.length ? C.green : C.goldDeep} bg={score === passage.questions.length ? C.greenBg : C.warnBg}>
                   {score}/{passage.questions.length} correct
                 </Pill>
               ) : (
@@ -325,7 +295,7 @@ function Reading() {
                           style={{
                             textAlign: "left", cursor: submitted ? "default" : "pointer",
                             border: `1.5px solid ${right ? C.green : wrong ? C.red : chosen ? C.royal : C.line}`,
-                            background: right ? C.greenBg : wrong ? C.redBg : "#fff",
+                            background: right ? C.greenBg : wrong ? C.redBg : C.white,
                             borderRadius: 11, padding: "10px 13px", fontFamily: FB, fontSize: 14, color: C.ink,
                             display: "flex", alignItems: "center", gap: 9,
                           }}
@@ -354,7 +324,7 @@ function Reading() {
               {submitted ? (
                 <button
                   onClick={() => { setAnswers({}); setSubmitted(false); }}
-                  style={{ border: `1px solid ${C.line}`, background: "#fff", borderRadius: 11, padding: "10px 16px", fontFamily: FB, fontWeight: 600, fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", gap: 7 }}
+                  style={{ border: `1px solid ${C.line}`, background: C.white, borderRadius: 11, padding: "10px 16px", fontFamily: FB, fontWeight: 600, fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", gap: 7 }}
                 >
                   <RotateCcw size={15} /> Try again
                 </button>
@@ -378,134 +348,5 @@ function Reading() {
         </div>
       </div>
     </div>
-  );
-}
-
-/* ---------------- courses ---------------- */
-
-const MODULE_ICON = { slides: BookOpen, quiz: ListChecks, video: Play } as const;
-
-function Courses() {
-  const [done, setDone] = useState<Record<string, string[]>>(() =>
-    Object.fromEntries(COURSES.map((c) => [c.id, c.modules.slice(0, c.completedSeed).map((m) => m.id)])),
-  );
-  const [open, setOpen] = useState<string | null>(COURSES[0].id);
-
-  const totals = useMemo(() => {
-    const completed = Object.values(done).reduce((n, ids) => n + ids.length, 0);
-    const all = COURSES.reduce((n, c) => n + c.modules.length, 0);
-    return { completed, all };
-  }, [done]);
-
-  function toggleModule(courseId: string, moduleId: string) {
-    setDone((prev) => {
-      const list = prev[courseId] ?? [];
-      return { ...prev, [courseId]: list.includes(moduleId) ? list.filter((id) => id !== moduleId) : [...list, moduleId] };
-    });
-  }
-
-  return (
-    <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 14 }}>
-      <Card style={{ padding: 16, display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
-        <div style={{ flex: 1, minWidth: 220 }}>
-          <div style={{ fontFamily: FD, fontWeight: 600, fontSize: 15 }}>Self-paced courses</div>
-          <div style={{ color: C.inkMute, fontSize: 13.5, marginTop: 3 }}>
-            Work through a module, tick it off, and the progress feeds your placement readiness score.
-          </div>
-        </div>
-        <div style={{ minWidth: 200 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: C.inkMute, marginBottom: 6 }}>
-            <span>Overall</span>
-            <span style={{ fontFamily: FM }}>{totals.completed}/{totals.all} modules</span>
-          </div>
-          <ProgressBar value={(totals.completed / totals.all) * 100} />
-        </div>
-      </Card>
-
-      {COURSES.map((course) => (
-        <CourseCard
-          key={course.id}
-          course={course}
-          done={done[course.id] ?? []}
-          expanded={open === course.id}
-          onToggleOpen={() => setOpen(open === course.id ? null : course.id)}
-          onToggleModule={(moduleId) => toggleModule(course.id, moduleId)}
-        />
-      ))}
-    </div>
-  );
-}
-
-function CourseCard({
-  course,
-  done,
-  expanded,
-  onToggleOpen,
-  onToggleModule,
-}: {
-  course: Course;
-  done: string[];
-  expanded: boolean;
-  onToggleOpen: () => void;
-  onToggleModule: (moduleId: string) => void;
-}) {
-  const percent = Math.round((done.length / course.modules.length) * 100);
-  const finished = done.length === course.modules.length;
-
-  return (
-    <Card style={{ padding: 0, overflow: "hidden" }}>
-      <button
-        onClick={onToggleOpen}
-        aria-expanded={expanded}
-        style={{ width: "100%", textAlign: "left", border: "none", background: "#fff", padding: 18, cursor: "pointer", display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}
-      >
-        <span style={{ width: 44, height: 44, flex: "none", borderRadius: 12, background: `${course.accent}18`, color: course.accent, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <BookOpen size={21} />
-        </span>
-        <span style={{ flex: 1, minWidth: 200 }}>
-          <span style={{ display: "block", fontFamily: FD, fontWeight: 600, fontSize: 16 }}>{course.title}</span>
-          <span style={{ display: "block", color: C.inkMute, fontSize: 13.5, marginTop: 2 }}>{course.blurb}</span>
-        </span>
-        <span style={{ minWidth: 170 }}>
-          <span style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, color: C.inkMute, marginBottom: 6 }}>
-            <span>{course.modules.length} modules</span>
-            <span style={{ fontFamily: FM, color: finished ? C.green : course.accent, fontWeight: 600 }}>
-              {done.length}/{course.modules.length}
-            </span>
-          </span>
-          <ProgressBar value={percent} color={finished ? C.green : course.accent} height={6} />
-        </span>
-        <ChevronDown size={18} color={C.inkMute} style={{ transform: expanded ? "rotate(180deg)" : "none", transition: "transform .18s" }} />
-      </button>
-
-      {expanded && (
-        <div style={{ borderTop: `1px solid ${C.line}` }}>
-          {course.modules.map((m) => {
-            const complete = done.includes(m.id);
-            const Icon = MODULE_ICON[m.kind];
-            return (
-              <div key={m.id} className="as-row" style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 18px", borderTop: `1px solid ${C.line}` }}>
-                <Icon size={16} color={C.inkMute} style={{ flex: "none" }} />
-                <span style={{ flex: 1, minWidth: 0, fontSize: 14.5, color: complete ? C.inkMute : C.ink, textDecoration: complete ? "line-through" : "none" }}>
-                  {m.title}
-                </span>
-                <Pill>{m.kind}</Pill>
-                <span style={{ fontFamily: FM, fontSize: 12, color: C.inkMute, width: 52, textAlign: "right" }}>{m.minutes} min</span>
-                <button
-                  onClick={() => onToggleModule(m.id)}
-                  style={{
-                    border: `1px solid ${complete ? "transparent" : C.line}`, background: complete ? C.greenBg : "#fff",
-                    color: complete ? C.green : C.inkSoft, borderRadius: 10, padding: "7px 12px", cursor: "pointer",
-                    fontFamily: FB, fontWeight: 600, fontSize: 13, display: "flex", alignItems: "center", gap: 6,
-                  }}
-                >
-                  {complete ? <><CheckCircle2 size={14} /> Done</> : <><Circle size={12} /> Mark done</>}
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </Card>
   );
 }

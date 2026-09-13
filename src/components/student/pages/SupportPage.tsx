@@ -4,7 +4,7 @@ import React, { useMemo, useState } from "react";
 import {
   BookOpen, CheckCircle2, ChevronRight, Clock, LifeBuoy, Mail, MessageSquare, Search, Send, Ticket,
 } from "lucide-react";
-import { C, FB, FD, FM, blueGrad } from "../theme";
+import { C, FB, FD, FM, blueGrad, tint } from "../theme";
 import { Card, H2, Kicker, Pill, Serif } from "../ui";
 
 type Faq = { id: string; category: string; q: string; a: string };
@@ -141,7 +141,7 @@ export function SupportPage() {
                   aria-pressed={category === cat}
                   style={{
                     border: `1.5px solid ${category === cat ? C.royal : C.line}`,
-                    background: category === cat ? "rgba(47,91,240,.06)" : "#fff",
+                    background: category === cat ? tint(C.royal, 8) : C.white,
                     color: category === cat ? C.royal : C.inkSoft, borderRadius: 999, padding: "6px 14px",
                     cursor: "pointer", fontFamily: FB, fontWeight: 600, fontSize: 13,
                   }}
@@ -163,7 +163,7 @@ export function SupportPage() {
                 <button
                   onClick={() => setOpen(open === f.id ? null : f.id)}
                   aria-expanded={open === f.id}
-                  style={{ width: "100%", textAlign: "left", border: "none", background: "#fff", padding: "16px 18px", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}
+                  style={{ width: "100%", textAlign: "left", border: "none", background: C.white, padding: "16px 18px", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}
                 >
                   <Pill>{f.category}</Pill>
                   <span style={{ flex: 1, fontFamily: FD, fontWeight: 600, fontSize: 15 }}>{f.q}</span>
@@ -291,8 +291,8 @@ function Field({
 
 function StatusPill({ status }: { status: TicketRecord["status"] }) {
   const map = {
-    Open: { color: C.goldDeep, bg: "#FFF4E0" },
-    "In progress": { color: C.blue, bg: "rgba(47,91,240,.08)" },
+    Open: { color: C.goldDeep, bg: C.warnBg },
+    "In progress": { color: C.blue, bg: tint(C.royal, 10) },
     Resolved: { color: C.green, bg: C.greenBg },
   } as const;
   const { color, bg } = map[status];

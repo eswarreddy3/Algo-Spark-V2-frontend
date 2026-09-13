@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { CheckCircle2, Info, RotateCcw, XCircle } from "lucide-react";
-import { C, FB, FD, FM, blueGrad } from "../theme";
+import { C, FB, FD, FM, blueGrad, tint } from "../theme";
 import { Card, Pill, ProgressBar } from "../ui";
 import type { Mcq } from "./types";
 
@@ -76,13 +76,13 @@ export function McqPanel({
             </div>
             <button
               onClick={retry}
-              style={{ border: `1px solid ${C.line}`, background: "#fff", borderRadius: 11, padding: "10px 16px", fontFamily: FB, fontWeight: 600, fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", gap: 7 }}
+              style={{ border: `1px solid ${C.line}`, background: C.white, borderRadius: 11, padding: "10px 16px", fontFamily: FB, fontWeight: 600, fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", gap: 7 }}
             >
               <RotateCcw size={15} /> Retry
             </button>
           </div>
         ) : (
-          <Pill color={C.royal} bg="rgba(47,91,240,.08)">
+          <Pill color={C.royal} bg={tint(C.royal, 10)}>
             {answeredCount}/{mcqs.length} answered
           </Pill>
         )}
@@ -111,7 +111,7 @@ export function McqPanel({
                       textAlign: "left",
                       cursor: submitted ? "default" : "pointer",
                       border: `1.5px solid ${right ? C.green : wrong ? C.red : isChosen ? C.royal : C.line}`,
-                      background: right ? C.greenBg : wrong ? C.redBg : isChosen ? "rgba(47,91,240,.05)" : "#fff",
+                      background: right ? C.greenBg : wrong ? C.redBg : isChosen ? tint(C.royal, 7) : C.white,
                       borderRadius: 11,
                       padding: "11px 14px",
                       fontFamily: FB,
@@ -150,7 +150,7 @@ export function McqPanel({
             alignSelf: "flex-start",
             border: "none",
             background: answeredCount < mcqs.length ? C.line : blueGrad,
-            color: answeredCount < mcqs.length ? C.inkMute : "#fff",
+            color: answeredCount < mcqs.length ? C.inkMute : C.white,
             borderRadius: 12,
             padding: "13px 22px",
             fontFamily: FB,

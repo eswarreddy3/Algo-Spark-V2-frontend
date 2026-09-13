@@ -6,7 +6,7 @@ import {
   Lock, MapPin, Play, Terminal, User2,
 } from "lucide-react";
 import "./labs.css";
-import { C, FB, FD, FM } from "../theme";
+import { C, FB, FD, FM, tint } from "../theme";
 import { Card, Kicker, Pill, ProgressBar } from "../ui";
 import { CodePanel } from "./CodePanel";
 import { MaterialPanel } from "./MaterialPanel";
@@ -110,7 +110,7 @@ export function LabWorkspace({
                   <CheckCircle2 size={11} style={{ display: "inline", marginRight: 5, verticalAlign: -1 }} />completed
                 </Pill>
               ) : (
-                <Pill color={C.goldDeep} bg="#FFF4E0">{active.points} XP on completion</Pill>
+                <Pill color={C.goldDeep} bg={C.warnBg}>{active.points} XP on completion</Pill>
               )}
             </div>
           </div>
@@ -251,7 +251,7 @@ function WeekRailItem({
         borderRadius: 11,
         padding: "10px 11px",
         cursor: locked ? "not-allowed" : "pointer",
-        background: active ? `${accent}12` : "transparent",
+        background: active ? tint(accent, 7) : "transparent",
         opacity: locked ? 0.55 : 1,
       }}
     >
@@ -318,7 +318,7 @@ function UnpublishedNotice({ week }: { week: Week }) {
   return (
     <Card style={{ padding: 28, marginTop: 20 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <div style={{ width: 46, height: 46, borderRadius: 12, background: "#FFF4E0", color: C.goldDeep, display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
+        <div style={{ width: 46, height: 46, borderRadius: 12, background: C.warnBg, color: C.goldDeep, display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
           <CalendarClock size={22} />
         </div>
         <div>
@@ -367,7 +367,7 @@ function ChecklistFooter({
         padding: 18,
         marginTop: 20,
         background: completed ? C.greenBg : C.white,
-        borderColor: completed ? "rgba(18,184,134,.3)" : C.line,
+        borderColor: completed ? tint(C.green, 30) : C.line,
         display: "flex",
         alignItems: "center",
         gap: 16,
@@ -396,7 +396,7 @@ function ChecklistFooter({
         </div>
       )}
       {completed && (
-        <div style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: FB, fontWeight: 600, fontSize: 14, color: C.green, background: "#fff", borderRadius: 999, padding: "9px 15px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: FB, fontWeight: 600, fontSize: 14, color: C.green, background: C.white, borderRadius: 999, padding: "9px 15px" }}>
           <CheckCircle2 size={16} /> XP awarded
         </div>
       )}

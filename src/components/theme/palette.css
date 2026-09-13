@@ -1,0 +1,117 @@
+/* Colour tokens for both AlgoSpark apps — the student app (.as-app) and the
+   college admin console (.ad-app) — so one palette and one theme preference
+   cover the whole product.
+
+   Light is the default. Dark applies when the viewer picks it, or when their
+   system prefers it and they have not picked light. Dark values are chosen
+   steps rather than an inversion; chart and accent hues were validated against
+   the dark surface for lightness, colour-blind separation and contrast. */
+
+.ad-app,
+.as-app {
+  --app-royal: #2430d8;
+  --app-blue: #2f5bf0;
+  --app-sky: #4da3f5;
+  --app-sky-lt: #7fc0fa;
+  --app-gold: #fbbf24;
+  --app-gold-deep: #f59e0b;
+  --app-glow: #ff8a00;
+  --app-cyan: #1ec8dc;
+  --app-violet: #8b7ce8;
+  --app-amber: #f5b838;
+  --app-ink: #101433;
+  --app-ink-soft: #3f456b;
+  --app-ink-mute: #767ca0;
+  --app-paper: #f6f8fd;
+  --app-cream: #f1f4fb;
+  --app-surface: #ffffff;
+  --app-line: #e7ebf6;
+  --app-line-soft: #f0f3fa;
+  --app-green: #0e9f6e;
+  --app-green-bg: #e4f7ef;
+  --app-red: #e5484d;
+  --app-red-bg: #fdecec;
+  --app-warn: #d97706;
+  --app-warn-bg: #fff4e0;
+  --app-warn-ink: #8a5a00;
+  --app-hover: #f6f8ff;
+  --app-glass: rgba(246, 248, 253, 0.85);
+  --app-shadow: rgba(16, 20, 51, 0.14);
+  --app-scrim: rgba(16, 20, 51, 0.35);
+  --app-focus: #2f5bf0;
+  color-scheme: light;
+}
+
+.ad-app[data-theme="dark"],
+.as-app[data-theme="dark"] {
+  --app-royal: #6b74f2;
+  --app-blue: #8ea6ff;
+  --app-sky: #6fb6f7;
+  --app-sky-lt: #8fc8fb;
+  --app-gold: #fbbf24;
+  --app-gold-deep: #e9a53a;
+  --app-glow: #ff9a2e;
+  --app-cyan: #12a0b3;
+  --app-violet: #8c79ee;
+  --app-amber: #f0b24a;
+  --app-ink: #e9ebf8;
+  --app-ink-soft: #b3b8d8;
+  --app-ink-mute: #858bb0;
+  --app-paper: #0b0e1f;
+  --app-cream: #1c2144;
+  --app-surface: #141833;
+  --app-line: #262b52;
+  --app-line-soft: #1e2345;
+  --app-green: #3ccf9b;
+  --app-green-bg: rgba(60, 207, 155, 0.14);
+  --app-red: #ff6b70;
+  --app-red-bg: rgba(255, 107, 112, 0.14);
+  --app-warn: #f5a524;
+  --app-warn-bg: rgba(245, 165, 36, 0.14);
+  --app-warn-ink: #f5c060;
+  --app-hover: #1a1f40;
+  --app-glass: rgba(11, 14, 31, 0.82);
+  --app-shadow: rgba(0, 0, 0, 0.45);
+  --app-scrim: rgba(3, 5, 14, 0.6);
+  --app-focus: #8ea6ff;
+  color-scheme: dark;
+}
+
+/* No explicit choice yet: follow the operating system. Kept in CSS rather than
+   script so a dark-mode viewer never sees a light flash before hydration. */
+@media (prefers-color-scheme: dark) {
+  .ad-app:not([data-theme="light"]),
+  .as-app:not([data-theme="light"]) {
+    --app-royal: #6b74f2;
+    --app-blue: #8ea6ff;
+    --app-sky: #6fb6f7;
+    --app-sky-lt: #8fc8fb;
+    --app-gold: #fbbf24;
+    --app-gold-deep: #e9a53a;
+    --app-glow: #ff9a2e;
+    --app-cyan: #12a0b3;
+    --app-violet: #8c79ee;
+    --app-amber: #f0b24a;
+    --app-ink: #e9ebf8;
+    --app-ink-soft: #b3b8d8;
+    --app-ink-mute: #858bb0;
+    --app-paper: #0b0e1f;
+    --app-cream: #1c2144;
+    --app-surface: #141833;
+    --app-line: #262b52;
+    --app-line-soft: #1e2345;
+    --app-green: #3ccf9b;
+    --app-green-bg: rgba(60, 207, 155, 0.14);
+    --app-red: #ff6b70;
+    --app-red-bg: rgba(255, 107, 112, 0.14);
+    --app-warn: #f5a524;
+    --app-warn-bg: rgba(245, 165, 36, 0.14);
+  --app-warn-ink: #f5c060;
+    --app-hover: #1a1f40;
+    --app-glass: rgba(11, 14, 31, 0.82);
+    --app-shadow: rgba(0, 0, 0, 0.45);
+    --app-scrim: rgba(3, 5, 14, 0.6);
+    --app-focus: #8ea6ff;
+    color-scheme: dark;
+  }
+}

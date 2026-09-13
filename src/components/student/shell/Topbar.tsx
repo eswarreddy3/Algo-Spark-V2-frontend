@@ -1,10 +1,13 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Bell, Check, ChevronDown, Flame, LogOut, Menu, Search, Settings, User, X } from "lucide-react";
-import { C, FB, FD, FM, blueGrad } from "../theme";
+import { Bell, Check, ChevronDown, Flame, LogOut, Menu, Moon, Search, Settings, Sun, User, X } from "lucide-react";
+import { C, FB, FD, FM, blueGrad, tint } from "../theme";
 import { NOTIFICATIONS, searchAll, type SearchResult } from "../data/search";
 import { useNav } from "../nav";
+import { useTheme } from "@/lib/theme";
+import { useRouter } from "next/navigation";
+import { signOut, useSession } from "@/lib/auth";
 
 const KIND_COLOR: Record<SearchResult["kind"], string> = {
   "Lab week": C.royal,
@@ -15,6 +18,9 @@ const KIND_COLOR: Record<SearchResult["kind"], string> = {
 
 export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
   const nav = useNav();
+  const { resolved, setTheme } = useTheme();
+  const router = useRouter();
+  const session = useSession();
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [highlight, setHighlight] = useState(0);
@@ -31,6 +37,9 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
     (target: SearchResult["target"]) => {
       if (target.type === "lab") nav.openLabWeek(target.labId, target.week);
       else if (target.type === "problem") nav.openProblem(target.problemId);
+      else if (target.type === "tech") nav.openTechTab(target.tab);
+      else if (target.type === "nontech") nav.openNonTechTab(target.tab);
+      else if (target.type === "course") nav.openCourse(target.scope, target.courseId);
       else nav.go(target.view);
       setQuery("");
       setSearchOpen(false);
@@ -82,7 +91,7 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
   return (
     <div
       style={{
-        height: 66, background: "rgba(246,248,253,.85)", backdropFilter: "blur(10px)",
+        height: 66, background: C.glass, backdropFilter: "blur(10px)",
         borderBottom: `1px solid ${C.line}`, display: "flex", alignItems: "center", gap: 12,
         padding: "0 20px", position: "sticky", top: 0, zIndex: 40,
       }}
@@ -91,7 +100,7 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
         className="as-menu-button"
         onClick={onOpenMenu}
         aria-label="Open navigation"
-        style={{ border: `1px solid ${C.line}`, background: "#fff", borderRadius: 10, width: 40, height: 40, alignItems: "center", justifyContent: "center", cursor: "pointer", color: C.ink }}
+        style={{ border: `1px solid ${C.line}`, background: C.white, borderRadius: 10, width: 40, height: 40, alignItems: "center", justifyContent: "center", cursor: "pointer", color: C.ink }}
       >
         <Menu size={19} />
       </button>
@@ -129,8 +138,8 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
           <div
             className="as-pop"
             style={{
-              position: "absolute", top: "calc(100% + 8px)", left: 0, right: 0, background: "#fff",
-              border: `1px solid ${C.line}`, borderRadius: 14, boxShadow: "0 18px 44px rgba(16,20,51,.14)",
+              position: "absolute", top: "calc(100% + 8px)", left: 0, right: 0, background: C.white,
+              border: `1px solid ${C.line}`, borderRadius: 14, boxShadow: `0 18px 44px ${C.shadow}`,
               overflow: "hidden", zIndex: 50,
             }}
           >
@@ -144,11 +153,11 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
                   onMouseEnter={() => setHighlight(i)}
                   style={{
                     width: "100%", textAlign: "left", border: "none", cursor: "pointer", padding: "11px 14px",
-                    background: i === highlight ? "#F4F7FF" : "#fff", display: "flex", alignItems: "center", gap: 12,
+                    background: i === highlight ? C.hover : C.white, display: "flex", alignItems: "center", gap: 12,
                     borderTop: i ? `1px solid ${C.line}` : "none",
                   }}
                 >
-                  <span style={{ fontFamily: FM, fontSize: 10, color: KIND_COLOR[r.kind], background: `${KIND_COLOR[r.kind]}14`, borderRadius: 6, padding: "3px 7px", flex: "none", width: 74, textAlign: "center" }}>
+                  <span style={{ fontFamily: FM, fontSize: 10, color: KIND_COLOR[r.kind], background: tint(KIND_COLOR[r.kind], 8), borderRadius: 6, padding: "3px 7px", flex: "none", width: 74, textAlign: "center" }}>
                     {r.kind}
                   </span>
                   <span style={{ flex: 1, minWidth: 0 }}>
@@ -169,7 +178,16 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
 
       <div style={{ flex: 1 }} />
 
-      <div className="as-streak-chip" style={{ display: "flex", alignItems: "center", gap: 7, background: "#FFF4E0", color: C.goldDeep, padding: "7px 12px", borderRadius: 999, fontWeight: 600, fontSize: 14 }}>
+      <button
+        onClick={() => setTheme(resolved === "dark" ? "light" : "dark")}
+        aria-label={resolved === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+        title={resolved === "dark" ? "Light theme" : "Dark theme"}
+        style={{ border: `1px solid ${C.line}`, background: C.white, borderRadius: 10, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: C.inkSoft, flex: "none" }}
+      >
+        {resolved === "dark" ? <Sun size={17} /> : <Moon size={17} />}
+      </button>
+
+      <div className="as-streak-chip" style={{ display: "flex", alignItems: "center", gap: 7, background: C.warnBg, color: C.goldDeep, padding: "7px 12px", borderRadius: 999, fontWeight: 600, fontSize: 14 }}>
         <Flame size={16} /> 12 day streak
       </div>
 
@@ -203,7 +221,7 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
         {panel === "bell" && (
           <div
             className="as-pop"
-            style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, width: 340, background: "#fff", border: `1px solid ${C.line}`, borderRadius: 14, boxShadow: "0 18px 44px rgba(16,20,51,.14)", overflow: "hidden", zIndex: 50 }}
+            style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, width: 340, background: C.white, border: `1px solid ${C.line}`, borderRadius: 14, boxShadow: `0 18px 44px ${C.shadow}`, overflow: "hidden", zIndex: 50 }}
           >
             <div style={{ display: "flex", alignItems: "center", padding: "12px 14px", borderBottom: `1px solid ${C.line}` }}>
               <span style={{ fontFamily: FD, fontWeight: 600, fontSize: 15 }}>Notifications</span>
@@ -222,7 +240,7 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
                     key={n.id}
                     onClick={() => { setRead((r) => [...r, n.id]); openTarget(n.target); }}
                     className="as-row"
-                    style={{ width: "100%", textAlign: "left", border: "none", background: isUnread ? "#F7F9FF" : "#fff", cursor: "pointer", padding: "12px 14px", borderTop: i ? `1px solid ${C.line}` : "none", display: "flex", gap: 10 }}
+                    style={{ width: "100%", textAlign: "left", border: "none", background: isUnread ? tint(C.blue, 6) : C.white, cursor: "pointer", padding: "12px 14px", borderTop: i ? `1px solid ${C.line}` : "none", display: "flex", gap: 10 }}
                   >
                     <span style={{ width: 8, height: 8, borderRadius: 999, background: isUnread ? C.blue : "transparent", marginTop: 6, flex: "none" }} />
                     <span style={{ flex: 1, minWidth: 0 }}>
@@ -240,10 +258,10 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
         {panel === "account" && (
           <div
             className="as-pop"
-            style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, width: 230, background: "#fff", border: `1px solid ${C.line}`, borderRadius: 14, boxShadow: "0 18px 44px rgba(16,20,51,.14)", overflow: "hidden", zIndex: 50 }}
+            style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, width: 230, background: C.white, border: `1px solid ${C.line}`, borderRadius: 14, boxShadow: `0 18px 44px ${C.shadow}`, overflow: "hidden", zIndex: 50 }}
           >
             <div style={{ padding: "13px 14px", borderBottom: `1px solid ${C.line}` }}>
-              <div style={{ fontFamily: FD, fontWeight: 600, fontSize: 14.5 }}>Aditya Kumar</div>
+              <div style={{ fontFamily: FD, fontWeight: 600, fontSize: 14.5 }}>{session?.name ?? "Aditya Kumar"}</div>
               <div style={{ color: C.inkMute, fontSize: 12.5, marginTop: 2 }}>CSE-A · Roll 21CS042</div>
             </div>
             {[
@@ -254,15 +272,15 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
                 key={item.label}
                 onClick={() => { item.action(); setPanel("none"); }}
                 className="as-row"
-                style={{ width: "100%", textAlign: "left", border: "none", background: "#fff", cursor: "pointer", padding: "11px 14px", display: "flex", alignItems: "center", gap: 10, fontFamily: FB, fontSize: 14, color: C.ink }}
+                style={{ width: "100%", textAlign: "left", border: "none", background: C.white, cursor: "pointer", padding: "11px 14px", display: "flex", alignItems: "center", gap: 10, fontFamily: FB, fontSize: 14, color: C.ink }}
               >
                 <item.icon size={16} color={C.inkMute} /> {item.label}
               </button>
             ))}
             <button
-              disabled
-              title="Sign-out is disabled in the prototype"
-              style={{ width: "100%", textAlign: "left", border: "none", borderTop: `1px solid ${C.line}`, background: "#fff", cursor: "not-allowed", padding: "11px 14px", display: "flex", alignItems: "center", gap: 10, fontFamily: FB, fontSize: 14, color: C.inkMute }}
+              onClick={() => { setPanel("none"); signOut(); router.replace("/login?role=student"); }}
+              className="as-row"
+              style={{ width: "100%", textAlign: "left", border: "none", borderTop: `1px solid ${C.line}`, background: C.white, cursor: "pointer", padding: "11px 14px", display: "flex", alignItems: "center", gap: 10, fontFamily: FB, fontSize: 14, color: C.red }}
             >
               <LogOut size={16} /> Sign out
             </button>

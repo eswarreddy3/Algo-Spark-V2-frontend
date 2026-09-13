@@ -5,7 +5,7 @@ import {
   ArrowRight, CalendarClock, CheckCircle2, ChevronRight, ClipboardCheck, Circle, Clock, Code2, Flame,
   FlaskConical, Lock, PenLine, Sparkles, Target, Trophy,
 } from "lucide-react";
-import { C, FB, FD, FM, blueGrad, goldGrad } from "../theme";
+import { C, FB, FD, FM, blueGrad, goldGrad, tint } from "../theme";
 import { Card, H2, Kicker, Pill, ProgressBar, Serif } from "../ui";
 import { LABS } from "../labs/catalog";
 import { useLabsProgress } from "../labs/progress";
@@ -24,7 +24,7 @@ const SCHEDULE = [
 ];
 
 export function DashboardPage({ xp }: { xp: number }) {
-  const { go, openLabWeek, openProblem } = useNav();
+  const { go, openLabWeek, openProblem, openTechTab } = useNav();
   const { currentWeek, weekProgress, labStats, isComplete } = useLabsProgress();
   const { isSolved } = useSolved();
 
@@ -50,10 +50,10 @@ export function DashboardPage({ xp }: { xp: number }) {
   const you = board.find((r) => r.you);
 
   const tiles = [
-    { icon: Sparkles, label: "Points", value: xp.toLocaleString(), sub: "+150 this week", color: C.royal, bg: "rgba(47,91,240,.1)", onClick: () => go("profile") },
-    { icon: Trophy, label: "Section rank", value: `#${you?.rank ?? 9}`, sub: you && you.delta > 0 ? `up ${you.delta} places` : "holding steady", color: C.goldDeep, bg: "#FFF4E0", onClick: () => go("leaderboard") },
+    { icon: Sparkles, label: "Points", value: xp.toLocaleString(), sub: "+150 this week", color: C.royal, bg: tint(C.royal, 12), onClick: () => go("profile") },
+    { icon: Trophy, label: "Section rank", value: `#${you?.rank ?? 9}`, sub: you && you.delta > 0 ? `up ${you.delta} places` : "holding steady", color: C.goldDeep, bg: C.warnBg, onClick: () => go("leaderboard") },
     { icon: Flame, label: "Streak", value: "12 days", sub: "keep it alive today", color: C.red, bg: C.redBg, onClick: () => go("profile") },
-    { icon: CheckCircle2, label: "Problems solved", value: `${solvedCount}/${PRACTICE_PROBLEMS.length}`, sub: "practice bank", color: C.green, bg: C.greenBg, onClick: () => go("tech") },
+    { icon: CheckCircle2, label: "Problems solved", value: `${solvedCount}/${PRACTICE_PROBLEMS.length}`, sub: "practice bank", color: C.green, bg: C.greenBg, onClick: () => openTechTab("problems") },
   ];
 
   return (
@@ -120,20 +120,20 @@ export function DashboardPage({ xp }: { xp: number }) {
         </Card>
         {nextProblem ? (
           <Card style={{ padding: 18, display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap" }}>
-            <div style={{ width: 46, height: 46, borderRadius: 13, background: "rgba(139,124,232,.14)", color: C.violet, display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
+            <div style={{ width: 46, height: 46, borderRadius: 13, background: tint(C.violet, 14), color: C.violet, display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
               <Target size={22} />
             </div>
             <div style={{ flex: 1, minWidth: 220 }}>
               <div style={{ fontFamily: FM, fontSize: 11.5, color: C.inkMute, letterSpacing: ".1em" }}>RECOMMENDED PRACTICE</div>
               <div style={{ fontFamily: FD, fontWeight: 600, fontSize: 17, marginTop: 4 }}>{nextProblem.exercise.title}</div>
               <div style={{ display: "flex", gap: 7, marginTop: 8, flexWrap: "wrap" }}>
-                <Pill color={DIFF_COLOR[nextProblem.exercise.difficulty]} bg={`${DIFF_COLOR[nextProblem.exercise.difficulty]}18`}>
+                <Pill color={DIFF_COLOR[nextProblem.exercise.difficulty]} bg={tint(DIFF_COLOR[nextProblem.exercise.difficulty], 10)}>
                   {nextProblem.exercise.difficulty}
                 </Pill>
                 {nextProblem.tags.map((t) => (
                   <Pill key={t}>{t}</Pill>
                 ))}
-                <Pill color={C.blue} bg="rgba(47,91,240,.07)">
+                <Pill color={C.blue} bg={tint(C.royal, 9)}>
                   asked at {nextProblem.companies[0]}
                 </Pill>
               </div>
@@ -164,9 +164,9 @@ export function DashboardPage({ xp }: { xp: number }) {
                   key={s.what}
                   onClick={() => go(s.kind === "exam" ? "exam" : "labs")}
                   className="as-row"
-                  style={{ textAlign: "left", border: `1px solid ${C.line}`, background: "#fff", borderRadius: 12, padding: "11px 13px", cursor: "pointer", display: "flex", gap: 11, alignItems: "center" }}
+                  style={{ textAlign: "left", border: `1px solid ${C.line}`, background: C.white, borderRadius: 12, padding: "11px 13px", cursor: "pointer", display: "flex", gap: 11, alignItems: "center" }}
                 >
-                  <span style={{ width: 34, height: 34, flex: "none", borderRadius: 10, background: s.kind === "exam" ? "#FFF4E0" : "rgba(47,91,240,.08)", color: s.kind === "exam" ? C.goldDeep : C.royal, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <span style={{ width: 34, height: 34, flex: "none", borderRadius: 10, background: s.kind === "exam" ? C.warnBg : tint(C.royal, 10), color: s.kind === "exam" ? C.goldDeep : C.royal, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {s.kind === "exam" ? <ClipboardCheck size={17} /> : <FlaskConical size={17} />}
                   </span>
                   <span style={{ flex: 1, minWidth: 0 }}>
@@ -210,14 +210,14 @@ export function DashboardPage({ xp }: { xp: number }) {
             <Card key={l.id} style={{ padding: 0 }} className="as-card-lift">
               <button onClick={() => openLabWeek(l.id, w)} style={{ all: "unset", cursor: "pointer", display: "block", width: "100%", padding: 18, boxSizing: "border-box" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 11, background: `${l.accent}18`, color: l.accent, display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 11, background: tint(l.accent, 10), color: l.accent, display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
                     <FlaskConical size={19} />
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontFamily: FD, fontWeight: 600, fontSize: 15 }}>{l.name.replace(" Lab", "")}</div>
                     <div style={{ color: C.inkMute, fontSize: 12.5, fontFamily: FM }}>{l.code}</div>
                   </div>
-                  <Pill color={l.accent} bg={`${l.accent}14`}>
+                  <Pill color={l.accent} bg={tint(l.accent, 8)}>
                     {s.percent}%
                   </Pill>
                 </div>
@@ -236,8 +236,8 @@ export function DashboardPage({ xp }: { xp: number }) {
 
       <div className="as-grid-3" style={{ marginTop: 16 }}>
         {[
-          { t: "Tech practice", d: "Coding, SQL and playground", icon: Code2, c: C.royal, v: "tech" as const },
-          { t: "Non-tech skills", d: "Email, reading and aptitude", icon: PenLine, c: C.cyan, v: "nontech" as const },
+          { t: "Tech practice", d: "Coding, courses and compilers", icon: Code2, c: C.royal, v: "tech" as const },
+          { t: "Non-tech skills", d: "Email, reading and courses", icon: PenLine, c: C.cyan, v: "nontech" as const },
           { t: "Take an exam", d: "Placement-style mock paper", icon: ClipboardCheck, c: C.goldDeep, v: "exam" as const },
         ].map((q) => (
           <Card key={q.t} style={{ padding: 0 }} className="as-card-lift">
@@ -245,7 +245,7 @@ export function DashboardPage({ xp }: { xp: number }) {
               onClick={() => go(q.v)}
               style={{ all: "unset", cursor: "pointer", display: "flex", alignItems: "center", gap: 14, width: "100%", padding: 18, boxSizing: "border-box" }}
             >
-              <span style={{ width: 44, height: 44, flex: "none", borderRadius: 12, background: `${q.c}18`, color: q.c, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ width: 44, height: 44, flex: "none", borderRadius: 12, background: tint(q.c, 10), color: q.c, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <q.icon size={21} />
               </span>
               <span style={{ flex: 1, minWidth: 0 }}>

@@ -69,7 +69,7 @@ class Solution {
     },
   },
   {
-    tags: ["Stack", "String"],
+    tags: ["Stack", "Strings"],
     companies: ["Microsoft"],
     acceptance: 61,
     solvedSeed: true,

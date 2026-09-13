@@ -102,7 +102,7 @@ export function MaterialPanel({
             <button
               onClick={() => go(-1)}
               disabled={i === 0}
-              style={{ border: `1px solid ${C.line}`, background: "#fff", borderRadius: 10, padding: "9px 13px", cursor: i === 0 ? "not-allowed" : "pointer", opacity: i === 0 ? 0.5 : 1, fontFamily: FB, fontWeight: 600, fontSize: 14, display: "flex", alignItems: "center", gap: 6 }}
+              style={{ border: `1px solid ${C.line}`, background: C.white, borderRadius: 10, padding: "9px 13px", cursor: i === 0 ? "not-allowed" : "pointer", opacity: i === 0 ? 0.5 : 1, fontFamily: FB, fontWeight: 600, fontSize: 14, display: "flex", alignItems: "center", gap: 6 }}
             >
               <ChevronLeft size={16} /> Prev
             </button>
@@ -173,7 +173,7 @@ function ResourceRow({ resource }: { resource: Resource }) {
   return (
     <button
       type="button"
-      style={{ display: "flex", alignItems: "center", gap: 11, width: "100%", textAlign: "left", border: `1px solid ${C.line}`, background: "#fff", borderRadius: 12, padding: "11px 13px", cursor: "pointer" }}
+      style={{ display: "flex", alignItems: "center", gap: 11, width: "100%", textAlign: "left", border: `1px solid ${C.line}`, background: C.white, borderRadius: 12, padding: "11px 13px", cursor: "pointer" }}
     >
       <span style={{ width: 34, height: 34, flex: "none", borderRadius: 10, background: C.cream, color: C.royal, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <Icon size={16} />

@@ -1,8 +1,9 @@
 /* Layout and interaction rules for the student app that inline styles cannot
-   express: media queries, focus rings, animations and scrollbars. */
+   express: media queries, focus rings, animations and scrollbars. Colour
+   tokens come from ../theme/palette.css; the sidebar is dark in both themes. */
 
 .as-app :focus-visible {
-  outline: 2px solid #2f5bf0;
+  outline: 2px solid var(--app-focus);
   outline-offset: 2px;
   border-radius: 10px;
 }
@@ -61,7 +62,7 @@
 }
 
 .as-sidebar {
-  width: 244px;
+  width: 280px;
   flex: none;
   position: sticky;
   top: 0;
@@ -73,6 +74,26 @@
   .as-hide-sm {
     display: none !important;
   }
+}
+
+/* Dark sidebar links: background lives here so hover can override the resting state. */
+.as-side-link {
+  background: transparent;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.as-side-link:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff !important;
+}
+
+.as-side-link[data-active="true"] {
+  background: rgba(77, 163, 245, 0.14);
+}
+
+.as-side-link:focus-visible {
+  outline: 2px solid #4da3f5;
+  outline-offset: 1px;
 }
 
 .as-menu-button {
@@ -92,7 +113,7 @@
     left: 0;
     transform: translateX(-100%);
     transition: transform 0.24s ease;
-    box-shadow: 0 20px 60px rgba(16, 20, 51, 0.18);
+    box-shadow: 0 20px 60px var(--app-shadow);
   }
 
   .as-sidebar[data-open="true"] {
@@ -108,7 +129,7 @@
     position: fixed;
     inset: 0;
     z-index: 55;
-    background: rgba(16, 20, 51, 0.35);
+    background: var(--app-scrim);
   }
 }
 
@@ -155,7 +176,7 @@
 
 /* Row hover affordance for list-style buttons. */
 .as-row:hover {
-  background: #f8faff !important;
+  background: var(--app-hover) !important;
 }
 
 .as-card-lift {
@@ -164,7 +185,7 @@
 
 .as-card-lift:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 30px rgba(16, 20, 51, 0.08);
+  box-shadow: 0 12px 30px var(--app-shadow);
 }
 
 @media (prefers-reduced-motion: reduce) {
