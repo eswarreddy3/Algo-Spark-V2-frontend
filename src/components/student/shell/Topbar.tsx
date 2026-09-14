@@ -136,7 +136,7 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
 
         {searchOpen && query.trim().length >= 2 && (
           <div
-            className="as-pop"
+            className="as-pop as-search-pop"
             style={{
               position: "absolute", top: "calc(100% + 8px)", left: 0, right: 0, background: C.white,
               border: `1px solid ${C.line}`, borderRadius: 14, boxShadow: `0 18px 44px ${C.shadow}`,
@@ -176,7 +176,7 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
         )}
       </div>
 
-      <div style={{ flex: 1 }} />
+      <div className="as-topbar-spacer" style={{ flex: 1 }} />
 
       <button
         onClick={() => setTheme(resolved === "dark" ? "light" : "dark")}
@@ -221,7 +221,7 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
         {panel === "bell" && (
           <div
             className="as-pop"
-            style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, width: 340, background: C.white, border: `1px solid ${C.line}`, borderRadius: 14, boxShadow: `0 18px 44px ${C.shadow}`, overflow: "hidden", zIndex: 50 }}
+            style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, width: 340, maxWidth: "calc(100vw - 24px)", background: C.white, border: `1px solid ${C.line}`, borderRadius: 14, boxShadow: `0 18px 44px ${C.shadow}`, overflow: "hidden", zIndex: 50 }}
           >
             <div style={{ display: "flex", alignItems: "center", padding: "12px 14px", borderBottom: `1px solid ${C.line}` }}>
               <span style={{ fontFamily: FD, fontWeight: 600, fontSize: 15 }}>Notifications</span>

@@ -180,11 +180,11 @@ export function Hero() {
               cohort.
             </motion.p>
 
-            <motion.div variants={item} className="flex gap-3.5 flex-wrap mt-[34px]">
-              <Button href="#book" variant="spark" icon>
+            <motion.div variants={item} className="flex flex-col sm:flex-row gap-3.5 mt-[34px]">
+              <Button href="#book" variant="spark" icon className="justify-center">
                 Book a demo
               </Button>
-              <Button href="#journey" variant="line">
+              <Button href="#journey" variant="line" className="justify-center">
                 See how it works
               </Button>
             </motion.div>

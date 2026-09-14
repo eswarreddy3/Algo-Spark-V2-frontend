@@ -141,7 +141,7 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
 
         {searchOpen && query.trim().length >= 2 && (
           <div
-            className="ad-pop"
+            className="ad-pop ad-search-pop"
             style={{
               position: "absolute", top: "calc(100% + 8px)", left: 0, right: 0, background: C.white,
               border: `1px solid ${C.line}`, borderRadius: 14, boxShadow: `0 18px 44px ${C.shadow}`,
@@ -181,7 +181,7 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
         )}
       </div>
 
-      <div style={{ flex: 1 }} />
+      <div className="ad-topbar-spacer" style={{ flex: 1 }} />
 
       <button
         onClick={() => nav.go("students")}
@@ -230,7 +230,7 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
         {panel === "bell" && (
           <div
             className="ad-pop"
-            style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, width: 360, background: C.white, border: `1px solid ${C.line}`, borderRadius: 14, boxShadow: `0 18px 44px ${C.shadow}`, overflow: "hidden", zIndex: 50 }}
+            style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, width: 360, maxWidth: "calc(100vw - 24px)", background: C.white, border: `1px solid ${C.line}`, borderRadius: 14, boxShadow: `0 18px 44px ${C.shadow}`, overflow: "hidden", zIndex: 50 }}
           >
             <div style={{ display: "flex", alignItems: "center", padding: "12px 14px", borderBottom: `1px solid ${C.line}` }}>
               <span style={{ fontFamily: FD, fontWeight: 600, fontSize: 15 }}>Alerts</span>

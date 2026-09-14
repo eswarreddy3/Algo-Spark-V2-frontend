@@ -67,7 +67,7 @@ function ModuleGrid({ onOpen }: { onOpen: (id: string) => void }) {
     <div>
       <H2 style={{ fontSize: 24 }}>Coding problems</H2>
       <p style={{ color: C.inkSoft, fontSize: 14.5, marginTop: 6 }}>
-        {modules.length} modules · {total} problems. Open a moduleule to drill by company, topic or difficulty. Practice here
+        {modules.length} modules · {total} problems. Open a module to drill by company, topic or difficulty. Practice here
         never locks or unlocks lab weeks.
       </p>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(270px, 1fr))", gap: 14, marginTop: 16 }}>

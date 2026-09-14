@@ -157,7 +157,7 @@ export function LoginForm({ initialRole }: { initialRole: Role }) {
   const panel = PANEL[role];
 
   return (
-    <main className="min-h-screen grid lg:grid-cols-[1.05fr_1fr] bg-paper">
+    <main className="min-h-screen grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] bg-paper">
       {/* Brand panel */}
       <aside className="relative isolate hidden lg:flex flex-col justify-between overflow-hidden bg-ink-grad text-white px-12 xl:px-16 py-12">
         <GlowOrbs variant="dark" />
@@ -215,7 +215,7 @@ export function LoginForm({ initialRole }: { initialRole: Role }) {
       </aside>
 
       {/* Form */}
-      <section className="relative isolate flex flex-col px-5 sm:px-10 py-8 sm:py-10">
+      <section className="relative isolate min-w-0 overflow-hidden flex flex-col px-5 sm:px-10 py-8 sm:py-10">
         <GlowOrbs variant="light" />
 
         <div className="flex items-center justify-between">

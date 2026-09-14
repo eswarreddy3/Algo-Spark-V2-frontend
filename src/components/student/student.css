@@ -49,8 +49,14 @@
 }
 
 @media (max-width: 760px) {
-  .as-grid-4,
   .as-grid-2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Stat tiles stay two-up on phones; one tall tile per row wastes the screen. */
+@media (max-width: 340px) {
+  .as-grid-4 {
     grid-template-columns: minmax(0, 1fr);
   }
 }
@@ -194,5 +200,49 @@
   .as-app *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* Page gutter tightens on phones so cards keep usable width. */
+.as-main {
+  padding: 26px 26px 60px;
+}
+
+@media (max-width: 600px) {
+  .as-main {
+    padding: 20px 16px 48px;
+  }
+}
+
+/* Phones: the search takes all free topbar width, and its results span the
+   screen instead of the narrow field. Inline styles need !important here. */
+/* Up to tablet width the search owns the free space (the spacer would halve it). */
+@media (max-width: 900px) {
+  .as-topbar-spacer {
+    display: none;
+  }
+
+  .as-search {
+    max-width: none !important;
+  }
+}
+
+@media (max-width: 700px) {
+
+  .as-search-pop {
+    position: fixed !important;
+    top: 74px !important;
+    left: 12px !important;
+    right: 12px !important;
+    max-height: calc(100vh - 90px);
+    overflow-y: auto !important;
+  }
+}
+
+/* Lab catalog cards: progress column drops below the description on phones. */
+@media (max-width: 640px) {
+  .as-lab-card-body {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 16px !important;
   }
 }

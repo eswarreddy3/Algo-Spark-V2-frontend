@@ -168,7 +168,7 @@ function Shell({ toast }: { toast: Toast | null }) {
         <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
           <Topbar onOpenMenu={() => setMenuOpen(true)} />
 
-          <main style={{ padding: "26px 26px 60px", width: "100%", boxSizing: "border-box" }}>
+          <main className="as-main" style={{ width: "100%", boxSizing: "border-box" }}>
             {shown === "dashboard" && <DashboardPage xp={points} />}
             {shown === "coach" && <CoachPage />}
             {shown === "labs" && <LabsSection route={labsRoute} setRoute={setLabsRoute} />}

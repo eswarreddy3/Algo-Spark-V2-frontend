@@ -110,7 +110,7 @@ function Shell({ toast }: { toast: Toast | null }) {
         <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
           <Topbar onOpenMenu={() => setMenuOpen(true)} />
 
-          <main style={{ padding: "26px 26px 60px", width: "100%", boxSizing: "border-box" }}>
+          <main className="ad-main" style={{ width: "100%", boxSizing: "border-box" }}>
             {view === "overview" && <OverviewPage />}
             {view === "students" && <StudentsPage />}
             {view === "labs" && <LabsPage />}

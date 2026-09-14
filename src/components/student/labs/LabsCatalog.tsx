@@ -93,7 +93,7 @@ function LabCard({ lab, onOpen }: { lab: Lab; onOpen: (labId: string, week: numb
   return (
     <Card style={{ padding: 0, overflow: "hidden", display: "flex" }}>
       <div style={{ width: 6, flex: "none", background: lab.accent }} />
-      <div style={{ flex: 1, minWidth: 0, padding: 20, display: "grid", gridTemplateColumns: "minmax(0,1.6fr) minmax(0,1fr)", gap: 20, alignItems: "center" }}>
+      <div className="as-lab-card-body" style={{ flex: 1, minWidth: 0, padding: 20, display: "grid", gridTemplateColumns: "minmax(0,1.6fr) minmax(0,1fr)", gap: 20, alignItems: "center" }}>
         <div style={{ minWidth: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
             <span style={{ fontFamily: FM, fontSize: 11.5, color: lab.accent, letterSpacing: ".1em" }}>{lab.code}</span>

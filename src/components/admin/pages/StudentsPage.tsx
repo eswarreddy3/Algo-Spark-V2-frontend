@@ -69,7 +69,7 @@ export function StudentsPage() {
         Filter the roster, open anyone for a full breakdown, and send a nudge to the students who have gone quiet.
       </p>
 
-      <Card style={{ padding: 14, marginTop: 18, display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+      <Card className="ad-filter-bar" style={{ padding: 14, marginTop: 18, display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
         <label style={{ display: "flex", alignItems: "center", gap: 9, background: C.white, border: `1px solid ${C.line}`, borderRadius: 11, padding: "9px 12px", minWidth: 240, flex: 1 }}>
           <Search size={16} color={C.inkMute} />
           <input

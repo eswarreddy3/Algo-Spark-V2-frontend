@@ -35,11 +35,11 @@ export function EditorWindow({
         {children}
       </div>
       <div className="flex items-center gap-3 px-[18px] py-[11px] bg-[#181C3C] border-t border-white/[0.06]">
-        <button className="font-body font-semibold text-[12.5px] text-[#0E1230] rounded-lg px-[14px] py-[7px] inline-flex gap-1.5 items-center cursor-pointer border-none" style={{ backgroundImage: "var(--gold-grad)" }}>
+        <button className="font-body font-semibold text-[12.5px] text-[#0E1230] rounded-lg px-[14px] py-[7px] inline-flex gap-1.5 items-center cursor-pointer border-none whitespace-nowrap flex-none" style={{ backgroundImage: "var(--gold-grad)" }}>
           <PlayIcon className="w-3 h-3" />
           {runLabel}
         </button>
-        <span className="ml-auto font-mono text-xs text-[#5AD6B0] flex items-center gap-1.5 font-medium">
+        <span className="ml-auto min-w-0 truncate font-mono text-xs text-[#5AD6B0] flex items-center gap-1.5 font-medium">
           <CheckIcon className="w-3.5 h-3.5" />
           {result}
         </span>
