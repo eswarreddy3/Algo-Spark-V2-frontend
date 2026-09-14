@@ -11,6 +11,7 @@
  * performance API in the real app.
  */
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { DAY, useNow } from "../useNow";
 
 export type ActivityKind = "lab" | "course" | "code" | "exam" | "email" | "reading";
 
@@ -107,12 +108,18 @@ export const BASE_POINTS = 3410;
 function seedState(): State {
   return {
     activity: [
-      { id: "s1", kind: "lab", title: "Data Structures Lab · Week 5 complete", detail: "Material, MCQs and code", points: 80, daysAgo: 1, seed: true },
+      { id: "s1", kind: "lab", title: "Data Structures Lab · Week 5 complete", detail: "PPT, MCQs and code", points: 80, daysAgo: 1, seed: true },
       { id: "s2", kind: "code", title: "Solved Two Sum", detail: "Easy · Arrays, Hash Map", points: 40, daysAgo: 2, seed: true },
       { id: "s3", kind: "email", title: "Email writing · Follow up on an interview", detail: "AI score 68", points: 0, score: 68, daysAgo: 3, seed: true },
       { id: "s4", kind: "reading", title: "Paragraph reading · How spaced repetition works", detail: "AI score 74", points: 0, score: 74, daysAgo: 4, seed: true },
+      { id: "s8", kind: "course", title: "Aptitude Foundations · Percentages", detail: "PPT viewed", points: 0, daysAgo: 5, seed: true },
       { id: "s5", kind: "exam", title: "Placement Mock #3", detail: "Scored 64%", points: 192, score: 64, daysAgo: 6, seed: true },
-      { id: "s6", kind: "lab", title: "Database Systems Lab · Week 2 complete", detail: "Material, MCQs and code", points: 80, daysAgo: 8, seed: true },
+      { id: "s9", kind: "lab", title: "Data Structures Lab · Week 5 MCQs", detail: "Passed 4/4", points: 0, daysAgo: 7, seed: true },
+      { id: "s6", kind: "lab", title: "Database Systems Lab · Week 2 complete", detail: "PPT, MCQs and code", points: 80, daysAgo: 8, seed: true },
+      { id: "s10", kind: "code", title: "Practised Valid Parentheses", detail: "Run · 2/3 tests passed", points: 0, daysAgo: 9, seed: true },
+      { id: "s11", kind: "course", title: "DSA for Placements · Linked Lists", detail: "PPT viewed", points: 0, daysAgo: 10, seed: true },
+      { id: "s12", kind: "lab", title: "Data Structures Lab · Week 5 PPT", detail: "PPT viewed", points: 0, daysAgo: 11, seed: true },
+      { id: "s13", kind: "email", title: "Email writing · Ask for a deadline extension", detail: "AI score 61", points: 0, score: 61, daysAgo: 12, seed: true },
       { id: "s7", kind: "exam", title: "Placement Mock #2", detail: "Scored 58%", points: 174, score: 58, daysAgo: 20, seed: true },
     ],
     exams: [
@@ -148,6 +155,8 @@ type NewActivity = Omit<Activity, "id" | "at" | "seed" | "daysAgo">;
 type Ctx = {
   hydrated: boolean;
   points: number;
+  /** Consecutive days with at least one activity, ending today (or yesterday, if nothing yet today). */
+  streak: number;
   activity: Activity[];
   exams: ExamRecord[];
   attempts: CodeAttempt[];
@@ -171,7 +180,30 @@ const PerformanceContext = createContext<Ctx | null>(null);
 let counter = 0;
 const newId = (prefix: string) => `${prefix}-${Date.now().toString(36)}-${(counter++).toString(36)}`;
 
+/** Whole days between an event and today, local time. */
+function daysAgoOf(a: Activity, today: number) {
+  if (a.daysAgo !== undefined) return a.daysAgo;
+  if (a.at === undefined || !today) return null;
+  const d = new Date(a.at);
+  d.setHours(0, 0, 0, 0);
+  return Math.round((today - d.getTime()) / DAY);
+}
+
+function computeStreak(activity: Activity[], now: number) {
+  const today = now ? new Date(now).setHours(0, 0, 0, 0) : 0;
+  const days = new Set(activity.map((a) => daysAgoOf(a, today)).filter((d): d is number => d !== null && d >= 0));
+  // A streak isn't broken until a whole day passes with nothing, so it may start from yesterday.
+  let day = days.has(0) ? 0 : 1;
+  let streak = 0;
+  while (days.has(day)) {
+    streak += 1;
+    day += 1;
+  }
+  return streak;
+}
+
 export function PerformanceProvider({ children }: { children: React.ReactNode }) {
+  const now = useNow();
   const [state, setState] = useState<State>(seedState);
   const [hydrated, setHydrated] = useState(false);
 
@@ -241,6 +273,7 @@ export function PerformanceProvider({ children }: { children: React.ReactNode })
     return {
       hydrated,
       points: BASE_POINTS + earned,
+      streak: computeStreak(state.activity, now),
       activity: state.activity,
       exams: state.exams,
       attempts: state.attempts,
@@ -259,7 +292,7 @@ export function PerformanceProvider({ children }: { children: React.ReactNode })
         return scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
       },
     };
-  }, [state, hydrated, record, recordExam, submitExamFeedback, logAttempt]);
+  }, [state, hydrated, now, record, recordExam, submitExamFeedback, logAttempt]);
 
   return <PerformanceContext.Provider value={value}>{children}</PerformanceContext.Provider>;
 }

@@ -5,6 +5,7 @@ import { Bell, Check, ChevronDown, Flame, LogOut, Menu, Moon, Search, Settings, 
 import { C, FB, FD, FM, blueGrad, tint } from "../theme";
 import { NOTIFICATIONS, searchAll, type SearchResult } from "../data/search";
 import { useNav } from "../nav";
+import { usePerformance } from "../data/performance";
 import { useTheme } from "@/lib/theme";
 import { useRouter } from "next/navigation";
 import { signOut, useSession } from "@/lib/auth";
@@ -18,6 +19,7 @@ const KIND_COLOR: Record<SearchResult["kind"], string> = {
 
 export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
   const nav = useNav();
+  const { streak } = usePerformance();
   const { resolved, setTheme } = useTheme();
   const router = useRouter();
   const session = useSession();
@@ -188,7 +190,7 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
       </button>
 
       <div className="as-streak-chip" style={{ display: "flex", alignItems: "center", gap: 7, background: C.warnBg, color: C.goldDeep, padding: "7px 12px", borderRadius: 999, fontWeight: 600, fontSize: 14 }}>
-        <Flame size={16} /> 12 day streak
+        <Flame size={16} /> {streak} day streak
       </div>
 
       <div ref={panelRef} style={{ position: "relative", display: "flex", alignItems: "center", gap: 10 }}>

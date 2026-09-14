@@ -220,7 +220,7 @@ export const COURSES: Course[] = [
               { id: "ap1-2", q: "A is 25% more than B. B is what percent less than A?", opts: ["25%", "20%", "15%", "30%"], a: 1, explain: "25 / 125 = 20%." },
               { id: "ap1-3", q: "What is 12.5% of 640?", opts: ["64", "80", "72", "96"], a: 1, explain: "12.5% = 1/8, and 640 / 8 = 80." },
             ]),
-          topic("apt-ratio", "Ratio & Proportion", "Splitting quantities and combining ratios without algebra.", "pdf", 18,
+          topic("apt-ratio", "Ratio & Proportion", "Splitting quantities and combining ratios without algebra.", "ppt", 18,
             ["Split a total in a given ratio", "Combine two ratios with a common term"],
             [
               { title: "Splitting a total", bullets: ["Ratio a:b of total T ⇒ parts aT/(a+b) and bT/(a+b)", "Add the ratio terms first, then scale"] },
@@ -237,7 +237,7 @@ export const COURSES: Course[] = [
         id: "apt-work",
         title: "Time, Speed & Work",
         topics: [
-          topic("apt-tsd", "Time, Speed & Distance", "Relative speed, trains and average speed.", "web", 22,
+          topic("apt-tsd", "Time, Speed & Distance", "Relative speed, trains and average speed.", "ppt", 22,
             ["Use relative speed for trains and chases", "Compute average speed correctly"],
             [
               { title: "The core relation", bullets: ["Distance = Speed × Time", "km/h to m/s: multiply by 5/18"] },
@@ -290,7 +290,7 @@ export const COURSES: Course[] = [
               { id: "vb1-2", q: "Neither the teacher nor the students ___ ready.", opts: ["was", "were", "is", "has"], a: 1, explain: "The verb agrees with the nearer subject, students." },
               { id: "vb1-3", q: "Everyone in the teams ___ a badge.", opts: ["get", "gets", "are getting", "have"], a: 1, explain: "Everyone takes a singular verb." },
             ]),
-          topic("verb-correction", "Sentence Correction", "A four-step scan for spotting the error fast.", "web", 18,
+          topic("verb-correction", "Sentence Correction", "A four-step scan for spotting the error fast.", "ppt", 18,
             ["Scan a sentence for the common error types", "Eliminate options in order"],
             [
               { title: "The four-step scan", bullets: ["1. Subject–verb agreement", "2. Tense consistency", "3. Pronoun reference", "4. Modifier placement"] },
@@ -307,7 +307,7 @@ export const COURSES: Course[] = [
         id: "verb-reading",
         title: "Reading",
         topics: [
-          topic("verb-parajumble", "Para-jumbles", "Opening sentences, link words and pairs that must stay together.", "pdf", 16,
+          topic("verb-parajumble", "Para-jumbles", "Opening sentences, link words and pairs that must stay together.", "ppt", 16,
             ["Find the opening sentence", "Use pronouns and link words to fix pairs"],
             [
               { title: "The opener", bullets: ["Introduces a subject without pronouns referring back", "Rarely starts with however, this or it"] },
@@ -347,7 +347,7 @@ export const COURSES: Course[] = [
               { id: "lg1-2", q: "No A is B. All C are A. Then:", opts: ["Some C are B", "No C is B", "All B are C", "Some B are A"], a: 1, explain: "C sits inside A, which is disjoint from B." },
               { id: "lg1-3", q: "“Some A are B” is drawn as:", opts: ["A inside B", "Overlapping circles", "Separate circles", "B inside A"], a: 1, explain: "Overlap is the minimal case for some." },
             ]),
-          topic("log-blood", "Blood Relations", "Family-tree notation that turns word puzzles into diagrams.", "web", 15,
+          topic("log-blood", "Blood Relations", "Family-tree notation that turns word puzzles into diagrams.", "ppt", 15,
             ["Draw a family tree with gender and generation", "Decode “pointing to a photograph” questions"],
             [
               { title: "Notation", bullets: ["Square for male, circle for female", "Horizontal line for spouses, vertical for generations"] },
@@ -364,7 +364,7 @@ export const COURSES: Course[] = [
         id: "log-puzzles",
         title: "Puzzles",
         topics: [
-          topic("log-seating", "Seating Arrangements", "Linear and circular seating with a fixed anchor.", "pdf", 25,
+          topic("log-seating", "Seating Arrangements", "Linear and circular seating with a fixed anchor.", "ppt", 25,
             ["Fix an anchor before placing anyone else", "Handle facing-centre versus facing-out circles"],
             [
               { title: "Start with certainty", bullets: ["Place definite clues first", "Branch into cases only when forced"] },
@@ -410,7 +410,7 @@ export const COURSES: Course[] = [
         id: "int-behavioural",
         title: "Behavioural Rounds",
         topics: [
-          topic("int-star", "The STAR Method", "Situation, task, action, result — with the weight on action.", "web", 16,
+          topic("int-star", "The STAR Method", "Situation, task, action, result — with the weight on action.", "ppt", 16,
             ["Answer behavioural questions with STAR", "Spend most of the answer on your own actions"],
             [
               { title: "STAR", bullets: ["Situation — the context in one line", "Task — what you were responsible for", "Action — what you did (the bulk)", "Result — the outcome, with a number"] },

@@ -6,15 +6,16 @@ import { DBMS_WEEKS } from "../labs/content/dbms";
 import { OS_WEEKS } from "../labs/content/os";
 
 /**
- * Self-paced courses. A course is split into sections (e.g. "Introduction"),
- * each section into topics, and every topic carries up to three modules:
- * material (a PPT deck, a PDF or a web article), a set of MCQs and a set of
- * coding questions. Non-tech topics have no coding questions.
+ * Self-paced courses. A course is split into modules (e.g. "Introduction"),
+ * each module into topics, and every topic carries up to three parts: a PPT
+ * deck, a set of MCQs and a set of coding questions. Non-tech topics have no
+ * coding questions. (`sections` in the data shape are the modules.)
  */
 
-export type MaterialFormat = "ppt" | "pdf" | "web";
+/** Course material is always a PPT deck: Module → PPT → (Coding) → MCQ. */
+export type MaterialFormat = "ppt";
 
-export const FORMAT_LABEL: Record<MaterialFormat, string> = { ppt: "PPT", pdf: "PDF", web: "Web" };
+export const FORMAT_LABEL: Record<MaterialFormat, string> = { ppt: "PPT" };
 
 export type TopicMaterial = {
   format: MaterialFormat;
@@ -177,7 +178,7 @@ const OOP_SECTIONS: Section[] = [
         minutes: 40,
         points: 80,
         material: {
-          format: "web",
+          format: "ppt",
           resources: [{ label: "Composition over inheritance", kind: "link", meta: "Article" }],
           slides: [
             {
@@ -264,14 +265,14 @@ export const TECH_COURSES: Course[] = [
         title: "Introduction",
         topics: [
           fromWeek("t-dsa", week(DS_WEEKS, 1), "ppt"),
-          fromWeek("t-dsa", week(DS_WEEKS, 2), "web", [practice("two-sum"), practice("merge-intervals")]),
+          fromWeek("t-dsa", week(DS_WEEKS, 2), "ppt", [practice("two-sum"), practice("merge-intervals")]),
         ],
       },
       {
         id: "dsa-linear",
         title: "Strings & Linked Lists",
         topics: [
-          fromWeek("t-dsa", week(DS_WEEKS, 3), "pdf", [practice("group-anagrams")]),
+          fromWeek("t-dsa", week(DS_WEEKS, 3), "ppt", [practice("group-anagrams")]),
           fromWeek("t-dsa", week(DS_WEEKS, 4), "ppt", [practice("lru-cache")]),
         ],
       },
@@ -279,9 +280,9 @@ export const TECH_COURSES: Course[] = [
         id: "dsa-recursive",
         title: "Recursion, Stacks & Trees",
         topics: [
-          fromWeek("t-dsa", week(DS_WEEKS, 5), "web"),
+          fromWeek("t-dsa", week(DS_WEEKS, 5), "ppt"),
           fromWeek("t-dsa", week(DS_WEEKS, 6), "ppt", [practice("valid-parentheses"), practice("kth-largest")]),
-          fromWeek("t-dsa", week(DS_WEEKS, 7), "pdf", [practice("word-ladder")]),
+          fromWeek("t-dsa", week(DS_WEEKS, 7), "ppt", [practice("word-ladder")]),
         ],
       },
     ],
@@ -296,8 +297,8 @@ export const TECH_COURSES: Course[] = [
     instructor: "Prof. Anand Krishnan",
     completedSeed: 1,
     sections: [
-      { id: "db-modelling", title: "Modelling & DDL", topics: [fromWeek("t-dbms", week(DBMS_WEEKS, 1), "pdf"), fromWeek("t-dbms", week(DBMS_WEEKS, 2), "ppt")] },
-      { id: "db-querying", title: "Querying", topics: [fromWeek("t-dbms", week(DBMS_WEEKS, 3), "web"), fromWeek("t-dbms", week(DBMS_WEEKS, 4), "ppt")] },
+      { id: "db-modelling", title: "Modelling & DDL", topics: [fromWeek("t-dbms", week(DBMS_WEEKS, 1), "ppt"), fromWeek("t-dbms", week(DBMS_WEEKS, 2), "ppt")] },
+      { id: "db-querying", title: "Querying", topics: [fromWeek("t-dbms", week(DBMS_WEEKS, 3), "ppt"), fromWeek("t-dbms", week(DBMS_WEEKS, 4), "ppt")] },
     ],
   },
   {
@@ -310,8 +311,8 @@ export const TECH_COURSES: Course[] = [
     instructor: "Dr. Suchitra Menon",
     completedSeed: 0,
     sections: [
-      { id: "os-processes", title: "Processes", topics: [fromWeek("t-os", week(OS_WEEKS, 1), "ppt"), fromWeek("t-os", week(OS_WEEKS, 2), "pdf")] },
-      { id: "os-concurrency", title: "Concurrency", topics: [fromWeek("t-os", week(OS_WEEKS, 3), "web")] },
+      { id: "os-processes", title: "Processes", topics: [fromWeek("t-os", week(OS_WEEKS, 1), "ppt"), fromWeek("t-os", week(OS_WEEKS, 2), "ppt")] },
+      { id: "os-concurrency", title: "Concurrency", topics: [fromWeek("t-os", week(OS_WEEKS, 3), "ppt")] },
     ],
   },
   {

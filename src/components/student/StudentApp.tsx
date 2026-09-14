@@ -10,7 +10,7 @@ import { Sidebar } from "./shell/Sidebar";
 import { Topbar } from "./shell/Topbar";
 import {
   NavProvider, initialCourseRoute, initialLabsRoute, initialNonTechRoute, initialSqlRoute, initialTechRoute,
-  type LabsRoute, type Nav, type NonTechRoute, type NonTechTab, type ProblemSegregation, type TechRoute, type TechTab, type View,
+  type LabsRoute, type Nav, type NonTechRoute, type NonTechTab, type TechRoute, type TechTab, type View,
 } from "./nav";
 import { LabsProgressProvider, type AwardEvent } from "./labs/progress";
 import { SolvedProvider } from "./data/solved";
@@ -18,7 +18,6 @@ import { CourseProgressProvider } from "./courses/progress";
 import { PerformanceProvider, usePerformance } from "./data/performance";
 import { PRACTICE_PROBLEMS } from "./data/problems";
 import { SQL_PROBLEMS } from "./data/sqlProblems";
-import { moduleOfProblem } from "./data/problemModules";
 import { LabsSection } from "./labs/LabsSection";
 import { DashboardPage } from "./pages/DashboardPage";
 import { CoachPage } from "./coach/CoachPage";
@@ -144,13 +143,11 @@ function Shell({ toast }: { toast: Toast | null }) {
         setView("labs");
         window.scrollTo({ top: 0, behavior: "smooth" });
       },
-      // A problem opens inside its module, so Back returns to the module.
-      openProblem: (problemId: string) =>
-        openTech({ ...initialTechRoute, tab: "problems", moduleId: moduleOfProblem(problemId)?.id ?? null, problemId }),
+      openProblem: (problemId: string) => openTech({ ...initialTechRoute, tab: "problems", problemId }),
       openSqlProblem: (problemId: string) =>
         openTech({ ...initialTechRoute, tab: "sql", sql: { ...initialSqlRoute, problemId } }),
-      openProblemModule: (moduleId: string, browse: ProblemSegregation) =>
-        openTech({ ...initialTechRoute, tab: "problems", moduleId, browse }),
+      openProblemGroup: (browse: "topics" | "companies", group: string) =>
+        openTech({ ...initialTechRoute, tab: "problems", browse, group }),
     };
   }, [view, labsRoute, techRoute, nonTechRoute, go]);
 

@@ -122,14 +122,14 @@ function CourseCard({ course, onOpen }: { course: Course; onOpen: () => void }) 
         <p style={{ color: C.inkSoft, fontSize: 14, lineHeight: 1.55, margin: 0 }}>{course.blurb}</p>
 
         <div style={{ display: "flex", gap: 14, flexWrap: "wrap", color: C.inkMute, fontSize: 13 }}>
-          <span style={{ display: "flex", alignItems: "center", gap: 5 }}><Layers size={13} /> {course.sections.length} sections</span>
+          <span style={{ display: "flex", alignItems: "center", gap: 5 }}><Layers size={13} /> {course.sections.length} modules</span>
           <span style={{ display: "flex", alignItems: "center", gap: 5 }}><BookOpen size={13} /> {topics} topics</span>
           <span style={{ display: "flex", alignItems: "center", gap: 5 }}><Clock size={13} /> {formatHours(courseMinutes(course))}</span>
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 6, color: C.inkMute, fontSize: 13 }}>
           <User2 size={13} /> {course.instructor}
-          {course.scope === "tech" ? <Pill style={{ marginLeft: "auto" }}>material · MCQ · coding</Pill> : <Pill style={{ marginLeft: "auto" }}>material · MCQ</Pill>}
+          {course.scope === "tech" ? <Pill style={{ marginLeft: "auto" }}>PPT · coding · MCQ</Pill> : <Pill style={{ marginLeft: "auto" }}>PPT · MCQ</Pill>}
         </div>
 
         <div style={{ marginTop: "auto" }}>

@@ -2,8 +2,8 @@
 
 import React, { useEffect, useMemo, useRef } from "react";
 import {
-  BookOpen, CalendarClock, CheckCircle2, ChevronLeft, Circle, Clock, ListChecks,
-  Lock, MapPin, Play, Terminal, User2,
+  BookOpen, CalendarClock, CheckCircle2, ChevronLeft, Circle, ListChecks,
+  Lock, MapPin, Play, Presentation, Terminal, User2,
 } from "lucide-react";
 import "./labs.css";
 import { C, FB, FD, FM, tint } from "../theme";
@@ -12,13 +12,14 @@ import { CodePanel } from "./CodePanel";
 import { MaterialPanel } from "./MaterialPanel";
 import { McqPanel } from "./McqPanel";
 import { useLabsProgress } from "./progress";
+import { hasContent } from "./content/shared";
 import type { Lab, Week } from "./types";
 import { DAY, startOfWeek, useNow } from "../useNow";
 
 export type WeekTab = "material" | "quiz" | "code";
 
 const TABS: { id: WeekTab; label: string; icon: typeof BookOpen }[] = [
-  { id: "material", label: "Material", icon: BookOpen },
+  { id: "material", label: "PPT", icon: Presentation },
   { id: "quiz", label: "MCQs", icon: ListChecks },
   { id: "code", label: "Coding exercise", icon: Terminal },
 ];
@@ -126,8 +127,8 @@ export function LabWorkspace({
 
           {!unlocked ? (
             <LockedNotice week={active} />
-          ) : !active.published ? (
-            <UnpublishedNotice week={active} />
+          ) : !hasContent(active) ? (
+            <NoContentNotice week={active} />
           ) : (
             <>
               <div style={{ display: "flex", gap: 6, marginTop: 20, borderBottom: `1px solid ${C.line}`, flexWrap: "wrap" }}>
@@ -298,7 +299,6 @@ function WeekRailItem({
           {week.title}
         </span>
       </span>
-      {!week.published && !locked && <Clock size={13} color={C.inkMute} />}
     </button>
   );
 }
@@ -311,7 +311,7 @@ function LockedNotice({ week }: { week: Week }) {
       </div>
       <div style={{ fontFamily: FD, fontWeight: 700, fontSize: 19 }}>Week {week.n} is locked</div>
       <p style={{ color: C.inkSoft, fontSize: 14.5, marginTop: 8, maxWidth: 460, marginInline: "auto", lineHeight: 1.6 }}>
-        Finish week {week.n - 1} — material, MCQs and the coding exercise — and this week opens automatically.
+        Finish week {week.n - 1} — PPT, MCQs and the coding exercise — and this week opens automatically.
       </p>
       <div style={{ marginTop: 18, textAlign: "left", maxWidth: 460, marginInline: "auto" }}>
         <div style={{ fontFamily: FM, fontSize: 11.5, letterSpacing: ".1em", color: C.inkMute }}>WHAT IS INSIDE</div>
@@ -325,17 +325,17 @@ function LockedNotice({ week }: { week: Week }) {
   );
 }
 
-function UnpublishedNotice({ week }: { week: Week }) {
+function NoContentNotice({ week }: { week: Week }) {
   return (
     <Card style={{ padding: 28, marginTop: 20 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <div style={{ width: 46, height: 46, borderRadius: 12, background: C.warnBg, color: C.goldDeep, display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
-          <CalendarClock size={22} />
+          <Presentation size={22} />
         </div>
         <div>
-          <div style={{ fontFamily: FD, fontWeight: 700, fontSize: 19 }}>Publishes on {week.releasesOn}</div>
+          <div style={{ fontFamily: FD, fontWeight: 700, fontSize: 19 }}>Week {week.n} is unlocked — content coming soon</div>
           <p style={{ color: C.inkSoft, fontSize: 14.5, marginTop: 4 }}>
-            Your faculty releases each week’s material before the lab session. Here is what it will cover.
+            The PPT, MCQs and coding exercise for this week haven&apos;t been added yet. Here is what it will cover.
           </p>
         </div>
       </div>
@@ -366,7 +366,7 @@ function ChecklistFooter({
   onJump: (tab: WeekTab) => void;
 }) {
   const items: { tab: WeekTab; label: string; done: boolean }[] = [
-    { tab: "material", label: "Read the material", done: material },
+    { tab: "material", label: "View the PPT", done: material },
     { tab: "quiz", label: "Clear the MCQs", done: quiz },
     ...(needsCode ? [{ tab: "code" as WeekTab, label: "Submit the coding exercise", done: code }] : []),
   ];

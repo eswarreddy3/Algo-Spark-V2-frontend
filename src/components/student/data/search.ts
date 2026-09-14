@@ -129,11 +129,11 @@ export type Notification = {
 export const NOTIFICATIONS: Notification[] = [
   {
     id: "n1",
-    title: "Week 7 material published",
-    body: "Dr. Meera Raghavan released Trees for the Data Structures lab.",
-    when: "10 min ago",
+    title: "Week 6 unlocked",
+    body: "You finished week 5 of the Data Structures lab, so Stacks & Queues is now open.",
+    when: "Yesterday",
     unread: true,
-    target: { type: "lab", labId: "cs-ds", week: 7 },
+    target: { type: "lab", labId: "cs-ds", week: 6 },
   },
   {
     id: "n2",

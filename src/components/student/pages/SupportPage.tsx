@@ -14,13 +14,13 @@ const FAQS: Faq[] = [
     id: "f1",
     category: "Labs",
     q: "How do I unlock the next week's lab?",
-    a: "Finish all three parts of the current week — read the material, clear the MCQs and submit the coding exercise. The next week unlocks immediately and the week's XP is credited to your total.",
+    a: "Finish all three parts of the current week — view the PPT, pass the MCQs and solve the coding exercise. The next week unlocks immediately and the week's XP is credited to your total.",
   },
   {
     id: "f2",
     category: "Labs",
-    q: "A week says “publishes on…” — what does that mean?",
-    a: "Your faculty releases material week by week, usually before the lab session. The outline is visible so you can prepare; the slides, quiz and exercise appear on the date shown.",
+    q: "Why is a week locked?",
+    a: "Weeks open strictly in order. A week unlocks the moment the week before it is complete — every PPT viewed, every MCQ set passed and every coding exercise solved. A partly finished week never unlocks the next one.",
   },
   {
     id: "f3",

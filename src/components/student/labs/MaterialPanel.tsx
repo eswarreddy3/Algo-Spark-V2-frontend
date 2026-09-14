@@ -40,7 +40,7 @@ export function MaterialPanel({
   if (!slides.length) {
     return (
       <Card style={{ padding: 24, color: C.inkMute, fontSize: 14.5 }}>
-        Slides for this week have not been published yet.
+        The PPT for this week hasn’t been added yet.
       </Card>
     );
   }
@@ -119,7 +119,7 @@ export function MaterialPanel({
                 disabled={done}
                 style={{ border: "none", background: done ? C.greenBg : goldGrad, color: done ? C.green : "#3A2A00", borderRadius: 10, padding: "9px 16px", cursor: done ? "default" : "pointer", fontFamily: FB, fontWeight: 600, fontSize: 14, display: "flex", alignItems: "center", gap: 7 }}
               >
-                {done ? <><CheckCircle2 size={16} /> Marked as read</> : "Mark as read"}
+                {done ? <><CheckCircle2 size={16} /> PPT viewed</> : "Mark PPT as viewed"}
               </button>
             )}
           </div>

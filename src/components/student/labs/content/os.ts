@@ -1,5 +1,5 @@
 import type { Week } from "../types";
-import { upcoming } from "./shared";
+import { outline } from "./shared";
 
 export const OS_WEEKS: Week[] = [
   {
@@ -12,7 +12,6 @@ export const OS_WEEKS: Week[] = [
       "Explain what fork() returns and to whom",
     ],
     points: 150,
-    published: true,
     readingMinutes: 19,
     mcqPassRatio: 0.6,
     resources: [
@@ -156,7 +155,6 @@ pair<int,int> readySummary(vector<Proc>& processes) {
       "Explain starvation and how round robin avoids it",
     ],
     points: 150,
-    published: true,
     readingMinutes: 21,
     mcqPassRatio: 0.6,
     resources: [
@@ -304,7 +302,6 @@ class Solution {
       "State the three requirements of a correct critical-section solution",
     ],
     points: 150,
-    published: true,
     readingMinutes: 20,
     mcqPassRatio: 0.6,
     resources: [
@@ -445,30 +442,30 @@ void worker(int n) {
     },
   },
 
-  upcoming(4, "Deadlocks", "Coffman conditions, detection, avoidance and the banker's algorithm.", "26 Aug 2026", [
+  outline(4, "Deadlocks", "Coffman conditions, detection, avoidance and the banker's algorithm.", [
     "State the four Coffman conditions and break one of them",
     "Run the banker's algorithm on a resource table",
   ]),
-  upcoming(5, "Memory Management", "Contiguous allocation, fragmentation and compaction.", "2 Sep 2026", [
+  outline(5, "Memory Management", "Contiguous allocation, fragmentation and compaction.", [
     "Compare first-fit, best-fit and worst-fit allocation",
     "Distinguish internal from external fragmentation",
   ]),
-  upcoming(6, "Paging & Virtual Memory", "Page tables, TLBs and replacement policies.", "9 Sep 2026", [
+  outline(6, "Paging & Virtual Memory", "Page tables, TLBs and replacement policies.", [
     "Translate a virtual address by hand",
     "Simulate FIFO, LRU and optimal page replacement",
   ]),
-  upcoming(7, "File Systems", "Inodes, directories and allocation strategies.", "16 Sep 2026", [
+  outline(7, "File Systems", "Inodes, directories and allocation strategies.", [
     "Compare contiguous, linked and indexed allocation",
     "Explain what an inode stores",
   ]),
-  upcoming(8, "Disk Scheduling", "Seek time and the algorithms that reduce it.", "23 Sep 2026", [
+  outline(8, "Disk Scheduling", "Seek time and the algorithms that reduce it.", [
     "Compute total head movement for FCFS, SSTF, SCAN and C-SCAN",
   ]),
-  upcoming(9, "Shell Scripting", "Automating the lab machine.", "30 Sep 2026", [
+  outline(9, "Shell Scripting", "Automating the lab machine.", [
     "Write a script with arguments, conditionals and loops",
     "Chain commands with pipes and redirection",
   ]),
-  upcoming(10, "Mini Project", "A small systems utility, built and demonstrated.", "7 Oct 2026", [
+  outline(10, "Mini Project", "A small systems utility, built and demonstrated.", [
     "Deliver a working utility with a short design note",
   ]),
 ];

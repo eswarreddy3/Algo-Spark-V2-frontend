@@ -138,7 +138,7 @@ export function TopicPlayer({
           <Card style={{ marginTop: 18, padding: 16, display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap", background: complete ? C.greenBg : C.white, borderColor: complete ? tint(C.green, 30) : C.line }}>
             <div style={{ flex: 1, minWidth: 220 }}>
               <div style={{ fontFamily: FD, fontWeight: 600, fontSize: 15, color: complete ? C.green : C.ink }}>
-                {complete ? "Topic complete" : `${left} module${left === 1 ? "" : "s"} left in this topic`}
+                {complete ? "Topic complete" : `${left} part${left === 1 ? "" : "s"} left in this topic`}
               </div>
               <div style={{ display: "flex", gap: 14, marginTop: 8, flexWrap: "wrap" }}>
                 {modules.map((m) => {

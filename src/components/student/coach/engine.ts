@@ -20,6 +20,7 @@ import type { PracticeProblem } from "../data/problems";
 import type { Activity, CoachGoal, ExamRecord } from "../data/performance";
 import type { ExamListing } from "../data/exam";
 import { EMAIL_PROMPTS, PASSAGES } from "../data/nontech";
+import { hasContent } from "../labs/content/shared";
 
 const DAY = 86_400_000;
 const WEEK = 7 * DAY;
@@ -78,8 +79,9 @@ export type Readiness = {
 const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
 const round = (n: number) => Math.round(n);
 
+/** Weeks with authored content — the ones a student can actually complete. */
 function publishedWeeks(lab: Lab) {
-  return lab.weeks.filter((w) => w.published);
+  return lab.weeks.filter(hasContent);
 }
 
 function labScore(signal: LabSignal) {
@@ -119,7 +121,7 @@ export function diagnose(inputs: CoachInputs): Readiness {
   const comms = mean([inputs.emailScore, inputs.readingScore].filter((n): n is number => n !== null));
 
   const raw: ReadinessComponent[] = [
-    { id: "labs", label: "Lab completion", weight: 0.3, score: mean(labScores), evidence: `${labsDone}/${labsTotal} published weeks done, MCQ accuracy included` },
+    { id: "labs", label: "Lab completion", weight: 0.3, score: mean(labScores), evidence: `${labsDone}/${labsTotal} weeks done, MCQ accuracy included` },
     {
       id: "coding", label: "Coding practice", weight: 0.3, score: coding,
       evidence: `${solvedCount}/${inputs.problems.length} problems solved, weighted by difficulty${targetBank.length ? ` · ${round(targetCoverage ?? 0)}% of target-company problems` : ""}`,
@@ -328,12 +330,13 @@ export function buildPlan(inputs: CoachInputs, areas: GapArea[], drills: Drill[]
 
     const labItem = (n: number, reason: string): PlanItem => {
       const week = lab.weeks.find((w) => w.n === n);
-      const unlocked = signal.isUnlocked(n) && Boolean(week?.published);
+      const ready = Boolean(week && hasContent(week));
+      const unlocked = signal.isUnlocked(n) && ready;
       return {
         id: `lab:${lab.id}:${n}`, kind: "lab", title: `${lab.name.replace(" Lab", "")} · Week ${n}`,
-        detail: `${week?.title ?? ""} — material, MCQs${week?.exercise ? " and coding task" : ""}`, reason,
+        detail: `${week?.title ?? ""} — PPT, MCQs${week?.exercise ? " and coding task" : ""}`, reason,
         minutes: (week?.readingMinutes ?? 20) + 45, done: signal.isComplete(n), locked: !unlocked && !signal.isComplete(n),
-        lockReason: !week?.published ? `Releases ${week?.releasesOn ?? "later"}` : `Unlocks when Week ${n - 1} is complete`,
+        lockReason: !signal.isUnlocked(n) ? `Unlocks when Week ${n - 1} is complete` : "Content not added yet",
         target: { type: "lab", labId: lab.id, week: n },
       };
     };

@@ -65,9 +65,9 @@ export const SCOPE_META: Record<Scope, { label: string; population: number }> = 
  * re-ranked — so a lab week, a solved problem or an exam score moves them the
  * moment it is recorded rather than on a nightly refresh.
  */
-export function liveBoard(scope: Scope, points: number): LeaderRow[] {
+export function liveBoard(scope: Scope, points: number, streak?: number): LeaderRow[] {
   return LEADERBOARDS[scope]
-    .map((r) => (r.you ? { ...r, points } : r))
+    .map((r) => (r.you ? { ...r, points, streak: streak ?? r.streak } : r))
     .sort((a, b) => b.points - a.points || Number(Boolean(b.you)) - Number(Boolean(a.you)))
     .map((r, i) => ({ ...r, rank: i + 1 }));
 }

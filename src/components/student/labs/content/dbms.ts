@@ -1,5 +1,5 @@
 import type { Week } from "../types";
-import { upcoming } from "./shared";
+import { outline } from "./shared";
 
 export const DBMS_WEEKS: Week[] = [
   {
@@ -12,7 +12,6 @@ export const DBMS_WEEKS: Week[] = [
       "Map an ER diagram to relational tables",
     ],
     points: 150,
-    published: true,
     readingMinutes: 18,
     mcqPassRatio: 0.6,
     resources: [
@@ -159,7 +158,6 @@ CREATE TABLE enrolment (
       "Predict which insert a given constraint will reject",
     ],
     points: 150,
-    published: true,
     readingMinutes: 16,
     mcqPassRatio: 0.6,
     resources: [
@@ -292,7 +290,6 @@ CREATE TABLE enrolment (
       "Order and limit a result set for a report",
     ],
     points: 150,
-    published: true,
     readingMinutes: 20,
     mcqPassRatio: 0.6,
     resources: [
@@ -442,7 +439,6 @@ FROM students
       "Reason about when a subquery is cheaper than a join",
     ],
     points: 150,
-    published: true,
     readingMinutes: 17,
     mcqPassRatio: 0.6,
     resources: [
@@ -576,30 +572,30 @@ CREATE VIEW active_toppers AS
     },
   },
 
-  upcoming(5, "Normalization", "1NF to BCNF, and the anomalies each form removes.", "26 Aug 2026", [
+  outline(5, "Normalization", "1NF to BCNF, and the anomalies each form removes.", [
     "Identify insertion, update and deletion anomalies in a flat table",
     "Decompose a relation to 3NF without losing dependencies",
     "Argue when denormalisation is the right call",
   ]),
-  upcoming(6, "Transactions & ACID", "Concurrency, isolation levels and rollback.", "2 Sep 2026", [
+  outline(6, "Transactions & ACID", "Concurrency, isolation levels and rollback.", [
     "Explain each ACID property with a banking example",
     "Reproduce a dirty read and a lost update",
     "Pick an isolation level for a given workload",
   ]),
-  upcoming(7, "Indexing", "B-trees, selectivity and reading a query plan.", "9 Sep 2026", [
+  outline(7, "Indexing", "B-trees, selectivity and reading a query plan.", [
     "Explain how a B-tree index turns a scan into a seek",
     "Read EXPLAIN QUERY PLAN output",
     "Decide which columns deserve an index",
   ]),
-  upcoming(8, "Stored Procedures & Triggers", "Logic that lives inside the database.", "16 Sep 2026", [
+  outline(8, "Stored Procedures & Triggers", "Logic that lives inside the database.", [
     "Write a procedure with parameters and control flow",
     "Use a trigger to maintain an audit table",
   ]),
-  upcoming(9, "NoSQL Basics", "Document stores and when relational is the wrong shape.", "23 Sep 2026", [
+  outline(9, "NoSQL Basics", "Document stores and when relational is the wrong shape.", [
     "Compare document, key-value and column stores",
     "Model the same data relationally and as documents",
   ]),
-  upcoming(10, "Mini Project", "Design, build and defend a small database application.", "30 Sep 2026", [
+  outline(10, "Mini Project", "Design, build and defend a small database application.", [
     "Deliver a schema, seed data and five reporting queries",
     "Defend the design choices in a viva",
   ]),

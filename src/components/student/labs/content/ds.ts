@@ -1,5 +1,5 @@
 import type { Week } from "../types";
-import { upcoming } from "./shared";
+import { outline } from "./shared";
 
 export const DS_WEEKS: Week[] = [
   {
@@ -12,7 +12,6 @@ export const DS_WEEKS: Week[] = [
       "Trade memory for time using a precomputed table",
     ],
     points: 150,
-    published: true,
     readingMinutes: 18,
     mcqPassRatio: 0.6,
     resources: [
@@ -152,7 +151,6 @@ vector<long long> rangeSums(vector<int>& nums, vector<pair<int,int>>& queries) {
       "Handle in-place mutation without extra allocation",
     ],
     points: 150,
-    published: true,
     readingMinutes: 16,
     mcqPassRatio: 0.6,
     resources: [
@@ -295,7 +293,6 @@ vector<int> pairWithSum(vector<int>& nums, int target) {
       "Normalise input before comparing (case, spacing, punctuation)",
     ],
     points: 150,
-    published: true,
     readingMinutes: 15,
     mcqPassRatio: 0.6,
     resources: [
@@ -438,7 +435,6 @@ bool isAnagram(string a, string b) {
       "Detect a cycle with Floyd's fast/slow pointers",
     ],
     points: 150,
-    published: true,
     readingMinutes: 20,
     mcqPassRatio: 0.6,
     resources: [
@@ -598,7 +594,6 @@ class Solution {
       "Generate combinations by choosing, recursing and undoing",
     ],
     points: 150,
-    published: true,
     readingMinutes: 19,
     mcqPassRatio: 0.6,
     resources: [
@@ -756,7 +751,6 @@ class Solution {
       "Explain where a queue beats a stack, and build one from two stacks",
     ],
     points: 150,
-    published: true,
     readingMinutes: 17,
     mcqPassRatio: 0.6,
     resources: [
@@ -909,7 +903,6 @@ class Solution {
       "Compute height and explain why balance matters",
     ],
     points: 150,
-    published: true,
     readingMinutes: 22,
     mcqPassRatio: 0.6,
     resources: [
@@ -1054,27 +1047,27 @@ class Solution {
     },
   },
 
-  upcoming(8, "Graphs", "Adjacency lists, BFS and DFS on real networks.", "26 Aug 2026", [
+  outline(8, "Graphs", "Adjacency lists, BFS and DFS on real networks.", [
     "Represent a graph as an adjacency list and reason about the space cost",
     "Traverse with BFS and DFS and know which one answers which question",
     "Detect a cycle in a directed graph",
   ]),
-  upcoming(9, "Sorting", "Comparison sorts, stability and when to stop writing your own.", "2 Sep 2026", [
+  outline(9, "Sorting", "Comparison sorts, stability and when to stop writing your own.", [
     "Trace merge sort and quicksort and state their best / worst cases",
     "Explain stability and why it matters for multi-key sorting",
     "Pick the right library sort for the data at hand",
   ]),
-  upcoming(10, "Hashing", "Hash functions, collisions and the O(1) average case.", "9 Sep 2026", [
+  outline(10, "Hashing", "Hash functions, collisions and the O(1) average case.", [
     "Explain how chaining and open addressing resolve collisions",
     "Reason about load factor and rehashing",
     "Use a hash map to turn a nested loop into a single pass",
   ]),
-  upcoming(11, "Dynamic Programming", "Overlapping subproblems, memoisation and tabulation.", "16 Sep 2026", [
+  outline(11, "Dynamic Programming", "Overlapping subproblems, memoisation and tabulation.", [
     "Spot overlapping subproblems and optimal substructure",
     "Convert a recursive solution into a memoised one",
     "Write the bottom-up table and reduce its space",
   ]),
-  upcoming(12, "Mock Round", "A timed placement-style round over the whole syllabus.", "23 Sep 2026", [
+  outline(12, "Mock Round", "A timed placement-style round over the whole syllabus.", [
     "Solve two unseen problems under a 90-minute clock",
     "Justify your complexity choices in a short viva",
   ]),

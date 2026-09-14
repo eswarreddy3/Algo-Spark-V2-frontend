@@ -34,7 +34,7 @@ export function McqPanel({
   const passed = shownScore >= Math.ceil(shownTotal * passRatio);
 
   if (!mcqs.length) {
-    return <Card style={{ padding: 24, color: C.inkMute, fontSize: 14.5 }}>No quiz has been published for this week yet.</Card>;
+    return <Card style={{ padding: 24, color: C.inkMute, fontSize: 14.5 }}>No MCQs have been added for this week yet.</Card>;
   }
 
   function submit() {

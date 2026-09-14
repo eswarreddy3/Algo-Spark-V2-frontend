@@ -246,3 +246,43 @@
     gap: 16px !important;
   }
 }
+
+/* Stacked card columns in a split row: the last card grows so both columns end level. */
+.as-fill-last > :last-child {
+  flex: 1 1 auto;
+}
+
+/* Profile header stats: four cells, two-up on phones. Dividers are the 1px grid gap. */
+.as-stat-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+}
+
+@media (max-width: 760px) {
+  .as-stat-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Profile: the settings card fills its column like any last card on desktop,
+   and moves to the very end when the two columns stack. */
+.as-profile-settings {
+  display: flex;
+  flex-direction: column;
+}
+
+.as-profile-settings > * {
+  flex: 1 1 auto;
+}
+
+@media (max-width: 1080px) {
+  /* !important: the columns set display inline. */
+  .as-profile-grid > div {
+    display: contents !important;
+  }
+
+  .as-profile-settings {
+    order: 99;
+  }
+}

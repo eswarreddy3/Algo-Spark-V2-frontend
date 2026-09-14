@@ -3,7 +3,7 @@
 import React, { useMemo } from "react";
 import {
   ArrowRight, BookOpen, BrainCircuit, CalendarClock, CheckCircle2, ChevronRight, ClipboardCheck, Circle, Clock, Code2, FileText, Flame,
-  FlaskConical, Lock, Mail, PenLine, PieChart, Sparkles, Trophy,
+  FlaskConical, Lock, Mail, PenLine, PieChart, Sparkles, Target, Trophy,
 } from "lucide-react";
 import { C, FB, FD, FM, blueGrad, goldGrad, tint } from "../theme";
 import { Card, H2, Kicker, Pill, ProgressBar, Serif } from "../ui";
@@ -35,7 +35,7 @@ export function DashboardPage({ xp }: { xp: number }) {
   const { go, openLabWeek } = useNav();
   const { currentWeek, weekProgress, labStats, isComplete } = useLabsProgress();
   const { courseStats } = useCourseProgress();
-  const { activity, exams } = usePerformance();
+  const { activity, exams, streak } = usePerformance();
 
   const lab = LABS.find((l) => l.id === PRIMARY_LAB) as (typeof LABS)[number];
   const week = currentWeek(lab.id);
@@ -44,7 +44,7 @@ export function DashboardPage({ xp }: { xp: number }) {
   const stats = labStats(lab.id);
 
   const remaining = [
-    !progress.material && "material",
+    !progress.material && "the PPT",
     !progress.mcq?.passed && "MCQs",
     weekDef?.exercise && !progress.code && "the coding task",
   ].filter(Boolean) as string[];
@@ -72,7 +72,7 @@ export function DashboardPage({ xp }: { xp: number }) {
     { icon: PieChart, label: "Overall completion", value: `${completion.percent}%`, sub: `${completion.labs}/${completion.labsTotal} lab weeks · ${completion.topics}/${completion.topicsTotal} topics`, color: C.cyan, bg: tint(C.cyan, 12), onClick: () => go("labs") },
     { icon: Trophy, label: "College rank", value: `#${collegeRank}`, sub: `#${sectionRank} in ${STUDENT.section}`, color: C.goldDeep, bg: C.warnBg, onClick: () => go("leaderboard") },
     { icon: Sparkles, label: "Points", value: xp.toLocaleString(), sub: "labs + coding + exams", color: C.royal, bg: tint(C.royal, 12), onClick: () => go("profile") },
-    { icon: Flame, label: "Streak", value: "12 days", sub: "keep it alive today", color: C.red, bg: C.redBg, onClick: () => go("profile") },
+    { icon: Flame, label: "Streak", value: `${streak} day${streak === 1 ? "" : "s"}`, sub: "consecutive active days", color: C.red, bg: C.redBg, onClick: () => go("profile") },
   ];
 
   return (
@@ -84,7 +84,7 @@ export function DashboardPage({ xp }: { xp: number }) {
       <p style={{ color: C.inkSoft, marginTop: 8, fontSize: 16 }}>
         {remaining.length
           ? `Week ${week} of ${lab.name.replace(" Lab", "")} needs ${listOf(remaining)}. That unlocks week ${week + 1}.`
-          : "Every published week is done. Nice work — try a practice problem to keep the streak alive."}
+          : "Every week with content is done. Nice work — try a practice problem to keep the streak alive."}
       </p>
 
       <div className="as-grid-4" style={{ marginTop: 22 }}>
@@ -102,8 +102,9 @@ export function DashboardPage({ xp }: { xp: number }) {
         ))}
       </div>
 
-      <div className="as-split-main" style={{ marginTop: 16 }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {/* Columns stretch to equal height and their last card fills the rest, so the bottoms line up. */}
+      <div className="as-split-main" style={{ marginTop: 16, alignItems: "stretch" }}>
+        <div className="as-fill-last" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <Card style={{ padding: 0, overflow: "hidden" }}>
             <div style={{ background: "linear-gradient(120deg,#101433,#26327A)", padding: 22, color: "#fff" }}>
               <div style={{ fontFamily: FM, fontSize: 12, color: "#AEB6E0", letterSpacing: ".1em" }}>CURRENT WEEK · CONTINUE WHERE YOU LEFT OFF</div>
@@ -123,7 +124,7 @@ export function DashboardPage({ xp }: { xp: number }) {
                   Resume week <ArrowRight size={16} />
                 </button>
                 <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-                  <StepChip label="Material" done={progress.material} />
+                  <StepChip label="PPT" done={progress.material} />
                   <StepChip label="MCQs" done={Boolean(progress.mcq?.passed)} />
                   {weekDef?.exercise && <StepChip label="Code" done={progress.code} />}
                 </div>
@@ -141,7 +142,7 @@ export function DashboardPage({ xp }: { xp: number }) {
           <CoachCard />
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div className="as-fill-last" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <Card style={{ padding: 18 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: FD, fontWeight: 600, fontSize: 16 }}>
@@ -252,7 +253,7 @@ function CoachCard() {
   const total = week?.items.length ?? 0;
 
   return (
-    <Card style={{ padding: 0, overflow: "hidden" }}>
+    <Card style={{ padding: 0, overflow: "hidden", display: "flex", flexDirection: "column" }}>
       <div style={{ padding: "16px 18px", display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap", borderBottom: `1px solid ${C.line}` }}>
         <ReadinessRing score={readiness.score} color={color} size={78} stroke={8} />
         <div style={{ flex: 1, minWidth: 180 }}>
@@ -297,8 +298,12 @@ function CoachCard() {
           </div>
         </>
       ) : (
-        <div style={{ padding: "14px 18px 18px", display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
-          <p style={{ flex: 1, minWidth: 220, margin: 0, fontSize: 14, color: C.inkSoft, lineHeight: 1.55 }}>
+        // Centred empty state: when the card stretches to match the column beside it, the prompt fills the space.
+        <div style={{ flex: 1, padding: "22px 18px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14, textAlign: "center" }}>
+          <span style={{ width: 46, height: 46, borderRadius: 14, background: tint(C.violet, 10), color: C.violet, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Target size={22} />
+          </span>
+          <p style={{ maxWidth: 420, margin: 0, fontSize: 14, color: C.inkSoft, lineHeight: 1.55 }}>
             Pick your target companies and a timeline, and the coach turns your gaps into a week-by-week plan with a daily focus.
           </p>
           <button

@@ -19,11 +19,11 @@ const initials = (name: string) =>
     .join("");
 
 export function LeaderboardPage() {
-  const { points } = usePerformance();
+  const { points, streak } = usePerformance();
   const [scope, setScope] = useState<Scope>("College");
   const [query, setQuery] = useState("");
 
-  const rows = useMemo(() => liveBoard(scope, points), [scope, points]);
+  const rows = useMemo(() => liveBoard(scope, points, streak), [scope, points, streak]);
   const you = rows.find((r) => r.you);
   const podium = rows.slice(0, 3);
 

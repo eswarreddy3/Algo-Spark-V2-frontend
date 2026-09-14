@@ -28,7 +28,7 @@ export function LabsCatalog({ onOpen }: { onOpen: (labId: string, week: number) 
             Your labs this <Serif>semester.</Serif>
           </H2>
           <p style={{ color: C.inkSoft, marginTop: 8, fontSize: 15.5, maxWidth: 620 }}>
-            Every lab runs week by week. Open a lab to see its modules — each one bundles the material, a quiz and a coding
+            Every lab runs week by week. Open a lab to see its weeks — each one bundles a PPT, MCQs and a coding
             exercise, and finishing all three unlocks the next week.
           </p>
         </div>

@@ -75,9 +75,6 @@ export type Week = {
   summary: string;
   objectives: string[];
   points: number;
-  /** Faculty publishes week by week; unpublished weeks show a release date. */
-  published: boolean;
-  releasesOn?: string;
   slides: Slide[];
   readingMinutes: number;
   resources: Resource[];

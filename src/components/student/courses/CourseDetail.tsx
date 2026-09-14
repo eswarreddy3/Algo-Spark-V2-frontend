@@ -13,7 +13,7 @@ import { FORMAT_ICON } from "./MaterialViewer";
 import { isModuleDone, topicModules, useCourseProgress } from "./progress";
 
 export const MODULE_META: Record<TopicModule, { label: string; icon: typeof BookOpen }> = {
-  material: { label: "Material", icon: BookOpen },
+  material: { label: "PPT", icon: BookOpen },
   mcq: { label: "MCQs", icon: ListChecks },
   code: { label: "Coding", icon: Terminal },
 };
@@ -60,7 +60,7 @@ export function CourseDetail({
             <p style={{ color: C.inkSoft, fontSize: 15, marginTop: 6, lineHeight: 1.6 }}>{course.blurb}</p>
             <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
               <Pill><User2 size={11} style={{ display: "inline", marginRight: 5, verticalAlign: -1 }} />{course.instructor}</Pill>
-              <Pill><Layers size={11} style={{ display: "inline", marginRight: 5, verticalAlign: -1 }} />{course.sections.length} sections</Pill>
+              <Pill><Layers size={11} style={{ display: "inline", marginRight: 5, verticalAlign: -1 }} />{course.sections.length} modules</Pill>
               <Pill><BookOpen size={11} style={{ display: "inline", marginRight: 5, verticalAlign: -1 }} />{topics.length} topics</Pill>
               <Pill><Clock size={11} style={{ display: "inline", marginRight: 5, verticalAlign: -1 }} />{formatHours(courseMinutes(course))}</Pill>
             </div>
@@ -101,7 +101,7 @@ export function CourseDetail({
                   {si + 1}
                 </span>
                 <span style={{ flex: 1, minWidth: 0 }}>
-                  <span style={{ display: "block", fontFamily: FM, fontSize: 11, letterSpacing: ".1em", color: C.inkMute }}>SECTION {si + 1}</span>
+                  <span style={{ display: "block", fontFamily: FM, fontSize: 11, letterSpacing: ".1em", color: C.inkMute }}>MODULE {si + 1}</span>
                   <span style={{ display: "block", fontFamily: FD, fontWeight: 600, fontSize: 17 }}>{section.title}</span>
                 </span>
                 <span style={{ fontFamily: FM, fontSize: 12.5, color: done === section.topics.length ? C.green : C.inkMute }}>

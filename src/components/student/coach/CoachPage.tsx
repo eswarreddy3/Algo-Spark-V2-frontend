@@ -5,7 +5,6 @@ import { AlertTriangle, ArrowRight, CalendarRange, ChevronDown, Info, Pencil, Sh
 import { C, FB, FD, FM, tint } from "../theme";
 import { Card, H2, Kicker, Pill, ProgressBar, Serif } from "../ui";
 import { DIFF_COLOR } from "../labs/types";
-import { moduleOfProblem } from "../data/problemModules";
 import { useNav } from "../nav";
 import { useCoach, useOpenTarget, useSetGoal } from "./useCoach";
 import type { GapArea } from "./engine";
@@ -243,7 +242,7 @@ export function CoachPage() {
           </div>
           {topDrills.length ? (
             topDrills.map((d) => {
-              const mod = d.kind === "coding" ? moduleOfProblem(d.problem.exercise.id) : undefined;
+              const topic = d.kind === "coding" ? d.problem.tags[0] : undefined;
               return (
                 <div key={d.problem.exercise.id} style={{ borderTop: `1px solid ${C.line}`, padding: "12px 18px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
@@ -262,12 +261,12 @@ export function CoachPage() {
                     >
                       Solve <ArrowRight size={13} />
                     </button>
-                    {mod && (
+                    {topic && (
                       <button
-                        onClick={() => nav.openProblemModule(mod.id, "companies")}
+                        onClick={() => nav.openProblemGroup("topics", topic)}
                         style={{ border: "none", background: "none", padding: 0, color: C.inkSoft, fontFamily: FB, fontWeight: 600, fontSize: 13, cursor: "pointer" }}
                       >
-                        More in {mod.title}
+                        More {topic} problems
                       </button>
                     )}
                   </div>
