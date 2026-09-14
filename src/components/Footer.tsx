@@ -70,9 +70,23 @@ export function Footer() {
         </div>
         <div className="flex items-center justify-between flex-wrap gap-3 pt-[22px]">
           <p className="text-ink-mute text-sm">© 2026 AlgoSpark. All rights reserved.</p>
-          <span className="font-mono text-[13px] text-ink-mute">
-            Powered by MindSpark · Built by Fynity Innovations LLP
-          </span>
+          <a
+            href="https://www.fynityinnovations.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group inline-flex items-center gap-2.5 rounded-full border border-royal/20 bg-white pl-2 pr-4 py-1.5 shadow-[0_4px_18px_rgba(36,48,216,0.12)] transition-all duration-200 hover:-translate-y-0.5 hover:border-royal/40 hover:shadow-[0_8px_24px_rgba(36,48,216,0.2)]"
+          >
+            <Image src="/fynity.png" alt="" width={698} height={698} className="w-7 h-7 flex-none object-contain" />
+            <span className="text-sm text-ink-mute">
+              Developed by{" "}
+              <span className="font-semibold bg-clip-text text-transparent" style={{ backgroundImage: "var(--blue-grad)" }}>
+                Fynity Innovations LLP
+              </span>
+            </span>
+            <span className="text-ink-mute transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true">
+              ↗
+            </span>
+          </a>
         </div>
       </div>
     </footer>

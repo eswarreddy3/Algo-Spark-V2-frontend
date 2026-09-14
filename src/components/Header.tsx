@@ -6,7 +6,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { MenuIcon, CloseIcon } from "./icons";
 import { Button } from "./Button";
-import { ROLE_HOME, signOut, useSession } from "@/lib/auth";
+import { signOut, useSession } from "@/lib/auth";
 
 const navLinks = [
   { href: "#journey", label: "How it works" },
@@ -32,15 +32,15 @@ export function Header() {
     <header
       className={`sticky top-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-paper/85 backdrop-blur-md shadow-[0_1px_0_var(--line),0_6px_22px_rgba(16,20,51,0.05)]"
-          : ""
+          ? "bg-ink/90 backdrop-blur-md shadow-[0_1px_0_rgba(255,255,255,0.08),0_6px_22px_rgba(0,0,0,0.25)]"
+          : "bg-ink"
       }`}
     >
       <div className="mx-auto max-w-[1180px] px-6">
         <nav className="flex items-center justify-between h-[78px]">
           <a href="#top" className="flex items-center gap-[11px]" aria-label="AlgoSpark home">
             <Image src="/algospark_logo.png" alt="" width={1850} height={1850} priority className="w-9 h-9 flex-none object-contain" />
-            <span className="font-display font-bold text-[22px] tracking-tight text-ink">
+            <span className="font-display font-bold text-[22px] tracking-tight text-white">
               Algo
               <span
                 className="bg-clip-text text-transparent"
@@ -56,7 +56,7 @@ export function Header() {
               <a
                 key={l.href}
                 href={l.href}
-                className="relative py-1 font-medium text-[16px] text-ink-soft hover:text-ink transition-colors group"
+                className="relative py-1 font-medium text-[16px] text-white/70 hover:text-white transition-colors group"
               >
                 {l.label}
                 <span className="absolute left-0 -bottom-0.5 h-0.5 w-0 bg-gold rounded-full transition-all duration-200 group-hover:w-full" />
@@ -66,26 +66,21 @@ export function Header() {
 
           <div className="hidden lg:flex items-center gap-3.5">
             {session ? (
-              <>
-                <Link href={ROLE_HOME[session.role]} className="font-semibold text-ink-soft hover:text-ink transition-colors">
-                  Dashboard
-                </Link>
-                <button onClick={signOut} className="font-semibold text-ink cursor-pointer">
-                  Log out
-                </button>
-              </>
+              <button onClick={signOut} className="font-semibold text-white cursor-pointer">
+                Log out
+              </button>
             ) : (
-              <Link href="/login" className="font-semibold text-ink">
+              <Link href="/login" className="font-semibold text-white">
                 Login
               </Link>
             )}
-            <Button href="#book" className="!px-5 !py-2.5 !text-[15px]">
+            <Button href="#book" variant="spark" icon className="!px-5 !py-2.5 !text-[15px]">
               Book a demo
             </Button>
           </div>
 
           <button
-            className="lg:hidden flex items-center justify-center bg-transparent border-2 border-line rounded-[11px] w-[46px] h-[46px] cursor-pointer text-ink"
+            className="lg:hidden flex items-center justify-center bg-transparent border-2 border-white/20 rounded-[11px] w-[46px] h-[46px] cursor-pointer text-white"
             aria-label={open ? "Close menu" : "Open menu"}
             onClick={() => setOpen((o) => !o)}
           >
@@ -101,7 +96,7 @@ export function Header() {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25, ease: [0.2, 0.7, 0.2, 1] }}
-            className="lg:hidden overflow-hidden border-t border-line bg-paper"
+            className="lg:hidden overflow-hidden border-t border-white/10 bg-ink"
           >
             <div className="flex flex-col px-6 py-5 gap-1">
               {navLinks.map((l) => (
@@ -109,26 +104,21 @@ export function Header() {
                   key={l.href}
                   href={l.href}
                   onClick={() => setOpen(false)}
-                  className="py-2.5 font-medium text-ink-soft"
+                  className="py-2.5 font-medium text-white/70 hover:text-white"
                 >
                   {l.label}
                 </a>
               ))}
               {session ? (
-                <>
-                  <Link href={ROLE_HOME[session.role]} onClick={() => setOpen(false)} className="py-2.5 font-medium text-ink-soft">
-                    Dashboard
-                  </Link>
-                  <button onClick={() => { signOut(); setOpen(false); }} className="py-2.5 text-left font-semibold text-ink cursor-pointer">
-                    Log out
-                  </button>
-                </>
+                <button onClick={() => { signOut(); setOpen(false); }} className="py-2.5 text-left font-semibold text-white cursor-pointer">
+                  Log out
+                </button>
               ) : (
-                <Link href="/login" onClick={() => setOpen(false)} className="py-2.5 font-semibold text-ink">
+                <Link href="/login" onClick={() => setOpen(false)} className="py-2.5 font-semibold text-white">
                   Login
                 </Link>
               )}
-              <Button href="#book" className="justify-center mt-2" >
+              <Button href="#book" variant="spark" icon className="justify-center mt-2">
                 Book a demo
               </Button>
             </div>

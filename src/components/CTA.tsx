@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { FlowLines } from "./FlowLines";
 import { Reveal } from "./Reveal";
 import { Button } from "./Button";
 
@@ -25,14 +24,6 @@ export function CTA() {
                 "linear-gradient(120deg, rgba(13,15,43,.94) 0%, rgba(13,15,43,.88) 45%, rgba(36,48,216,.55) 78%, rgba(236,72,153,.4) 100%)",
             }}
           />
-          <FlowLines
-            className="-z-[5]"
-            viewBox="0 0 1200 420"
-            lines={[
-              { d: "M-40 120 C 300 40 560 220 900 120 S 1300 60 1320 180", stroke: "url(#bg)", strokeWidth: 2, opacity: 0.5 },
-              { d: "M-40 300 C 340 380 620 200 980 320 S 1300 360 1320 260", stroke: "url(#gg)", strokeWidth: 2, opacity: 0.5, delay: 0.3 },
-            ]}
-          />
           <Image
             src="/algospark_primary.png"
             alt="AlgoSpark — Learn. Think. Innovate."
@@ -52,7 +43,7 @@ export function CTA() {
             dashboard of every student, every course, every lab.
           </p>
           <div className="relative z-[2] flex gap-3.5 flex-wrap justify-center">
-            <Button href="#" icon>
+            <Button href="#" variant="spark" icon>
               Book a demo
             </Button>
             <Button href="#journey" variant="glass">

@@ -120,6 +120,7 @@ export function Hero() {
     <section className="relative overflow-hidden pt-14 pb-8" id="top">
       <GlowOrbs variant="light" />
       <FlowLines
+        loop
         viewBox="0 0 1440 720"
         lines={[
           { d: "M-40 250 C 300 120 640 360 1000 200 S 1500 120 1520 260", stroke: "url(#bg)", strokeWidth: 2.5, opacity: 0.5 },
@@ -180,7 +181,7 @@ export function Hero() {
             </motion.p>
 
             <motion.div variants={item} className="flex gap-3.5 flex-wrap mt-[34px]">
-              <Button href="#book" icon className="!shadow-none animate-pulse-cta">
+              <Button href="#book" variant="spark" icon>
                 Book a demo
               </Button>
               <Button href="#journey" variant="line">
