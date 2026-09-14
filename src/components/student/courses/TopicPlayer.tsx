@@ -224,7 +224,7 @@ function CodingQuestions({
           })}
         </div>
       )}
-      <CodePanel key={exercise.id} exercise={exercise} solved={progress.code.includes(exercise.id)} onSolved={() => onSolved(exercise.id)} />
+      <CodePanel key={exercise.id} exercise={exercise} solved={progress.code.includes(exercise.id)} onSolved={() => onSolved(exercise.id)} context="course" />
     </div>
   );
 }

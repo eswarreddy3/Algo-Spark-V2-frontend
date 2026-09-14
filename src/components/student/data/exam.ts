@@ -86,12 +86,15 @@ export const EXAM = {
   id: "mock-4",
   title: "Placement Mock #4",
   totalMinutes: 90,
+  /** Leaderboard points for a perfect paper; the score scales them. */
+  maxPoints: 300,
   windowCloses: "Today · 6:00 PM",
   instructions: [
     "The timer runs for the whole paper — you may move between sections freely.",
-    "MCQs are auto-graded. Coding is judged on hidden tests; email and reading are graded by faculty.",
+    "MCQs are auto-graded and coding is judged on hidden tests. Email writing and paragraph reading are graded by AI — you get a score, written feedback and suggestions.",
     "Flag a question to come back to it; flagged questions show in the palette.",
     "The paper submits automatically when the timer reaches zero.",
+    "After you submit, a short feedback form is mandatory — your results appear once it is sent.",
   ],
   sections: [
     { id: "mcq", label: "MCQ", minutes: 25, kind: "mcq", questions: EXAM_MCQS },
@@ -104,3 +107,23 @@ export const EXAM = {
 export function examCodingExercise() {
   return getProblem("merge-intervals")?.exercise;
 }
+
+export type ExamListing = {
+  id: string;
+  title: string;
+  /** Sections, in words. */
+  format: string;
+  minutes: number;
+  status: "open" | "upcoming";
+  /** Display label for when it opens or closes. */
+  when: string;
+  /** Days until it opens (0 = open now). The AI coach plans around this. */
+  daysFromNow: number;
+};
+
+/** Exams assigned to the student's cohort by the Super Admin. */
+export const EXAM_LISTINGS: ExamListing[] = [
+  { id: EXAM.id, title: EXAM.title, format: "MCQ · Coding · Email · Reading", minutes: EXAM.totalMinutes, status: "open", when: "Open now · closes today 6:00 PM", daysFromNow: 0 },
+  { id: "aptitude-sprint-2", title: "Aptitude Sprint #2", format: "MCQ · Paragraph reading", minutes: 45, status: "upcoming", when: "Opens Friday · 10:00 AM", daysFromNow: 4 },
+  { id: "mock-5", title: "Placement Mock #5", format: "MCQ · Coding · Email · Reading", minutes: 90, status: "upcoming", when: "Opens in 11 days", daysFromNow: 11 },
+];

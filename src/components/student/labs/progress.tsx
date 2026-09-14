@@ -17,7 +17,7 @@ export type WeekProgress = {
 
 export type LabsState = Record<string, Record<number, WeekProgress>>;
 
-export type AwardEvent = { points: number; title: string; sub: string };
+export type AwardEvent = { points: number; title: string; sub: string; ref: string };
 
 const STORAGE_KEY = "algospark.labs.v1";
 
@@ -153,6 +153,7 @@ export function LabsProgressProvider({
           const nextWeek = lab?.weeks.find((w) => w.n === week + 1);
           const points = weekDef?.points ?? 0;
           onAward?.({
+            ref: `lab:${labId}:${week}`,
             points,
             title: `Week ${week} complete!`,
             sub: nextWeek ? `+${points} XP · Week ${week + 1} unlocked` : `+${points} XP · lab finished`,

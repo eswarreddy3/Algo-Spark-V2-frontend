@@ -78,12 +78,20 @@ export type Passage = {
   words: number;
   text: string[];
   questions: ReadingQuestion[];
+  /** Ideas a good summary should capture; each lists words that signal it. The AI grader checks coverage. */
+  keyIdeas: { idea: string; signals: string[] }[];
 };
 
 export const PASSAGES: Passage[] = [
   {
     id: "spaced-repetition",
     title: "How spaced repetition works",
+    keyIdeas: [
+      { idea: "Reviews are spaced at increasing intervals", signals: ["interval", "spaced", "increasing", "over time"] },
+      { idea: "Reviewing just before forgetting strengthens memory", signals: ["forget", "recall", "memory", "retention"] },
+      { idea: "Ebbinghaus's forgetting curve", signals: ["ebbinghaus", "forgetting curve", "curve"] },
+      { idea: "Software focuses time on weak material", signals: ["software", "flashcard", "weak", "shaky", "efficient"] },
+    ],
     minutes: 3,
     words: 168,
     text: [
@@ -128,6 +136,12 @@ export const PASSAGES: Passage[] = [
   {
     id: "code-review",
     title: "Why teams review code",
+    keyIdeas: [
+      { idea: "A second engineer reads a change before merge", signals: ["review", "second", "before", "merge", "read"] },
+      { idea: "Bug-catching is real but not the main value", signals: ["bug", "defect"] },
+      { idea: "Reviews spread shared understanding", signals: ["knowledge", "understanding", "shared", "spread", "learn"] },
+      { idea: "Reviews push teams toward smaller changes", signals: ["small", "smaller", "size", "shrink", "large"] },
+    ],
     minutes: 3,
     words: 154,
     text: [

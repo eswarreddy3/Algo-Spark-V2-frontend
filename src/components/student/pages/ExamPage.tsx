@@ -1,32 +1,43 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  AlertTriangle, Award, Check, ClipboardCheck, Clock, Code2, Flag, ListChecks, Mail, FileText, ShieldCheck,
+  AlertTriangle, ArrowRight, Award, CalendarClock, Check, ChevronLeft, ClipboardCheck, Clock, Code2, Flag, ListChecks, Lock,
+  Mail, FileText, MessageSquareHeart, ShieldCheck, Sparkles, Star,
 } from "lucide-react";
 import { C, FB, FD, FM, blueGrad, goldGrad, tint } from "../theme";
-import { Card, H2, Kicker, ProgressBar, Serif } from "../ui";
+import { Card, H2, Kicker, Pill, ProgressBar, Serif } from "../ui";
 import { CodePanel } from "../labs/CodePanel";
-import { EXAM, examCodingExercise, type ExamSection } from "../data/exam";
+import { EXAM, EXAM_LISTINGS, examCodingExercise, type ExamSection } from "../data/exam";
 import { EMAIL_PROMPTS, PASSAGES } from "../data/nontech";
+import { analyzeEmail } from "../data/emailFeedback";
+import { SUMMARY_WORDS, analyzeReading } from "../data/readingFeedback";
+import { usePerformance, type ExamFeedback, type ExamRecord, type ExamSectionResult } from "../data/performance";
+import { useNav } from "../nav";
 
 const SECTION_ICON = { mcq: ListChecks, coding: Code2, email: Mail, reading: FileText } as const;
 const SECTION_COLOR = { mcq: C.royal, coding: C.violet, email: C.cyan, reading: C.goldDeep } as const;
-
-type Phase = "brief" | "running" | "submitted";
 
 type Answers = {
   mcq: Record<string, number>;
   flags: string[];
   email: string;
   reading: Record<string, number>;
+  summary: string;
   codeSubmitted: boolean;
 };
 
-const emptyAnswers: Answers = { mcq: {}, flags: [], email: "", reading: {}, codeSubmitted: false };
+const emptyAnswers: Answers = { mcq: {}, flags: [], email: "", reading: {}, summary: "", codeSubmitted: false };
+
+const wordCount = (text: string) => (text.trim() ? text.trim().split(/\s+/).length : 0);
+
+/** Local screens. Feedback is not one of them: it is forced whenever a submitted paper has none. */
+type Screen = { type: "hub" } | { type: "brief" } | { type: "running" } | { type: "result"; examId: string };
 
 export function ExamPage() {
-  const [phase, setPhase] = useState<Phase>("brief");
+  const { exams, examRecord, recordExam, submitExamFeedback, pendingFeedback: pending } = usePerformance();
+  const { go } = useNav();
+  const [screen, setScreen] = useState<Screen>({ type: "hub" });
   const [answers, setAnswers] = useState<Answers>(emptyAnswers);
   const [sectionIndex, setSectionIndex] = useState(0);
   const [secondsLeft, setSecondsLeft] = useState(EXAM.totalMinutes * 60);
@@ -35,66 +46,219 @@ export function ExamPage() {
 
   const submit = useCallback(() => {
     setConfirming(false);
-    setPhase("submitted");
-  }, []);
+    const usedMinutes = Math.round((EXAM.totalMinutes * 60 - secondsLeft) / 60);
+    const sections = gradePaper(answers);
+    const percent = Math.round(sections.reduce((n, s) => n + s.score, 0) / sections.length);
+    recordExam({
+      examId: EXAM.id, title: EXAM.title, percent, points: Math.round((percent / 100) * EXAM.maxPoints), sections, usedMinutes,
+    });
+    setScreen({ type: "result", examId: EXAM.id });
+  }, [answers, secondsLeft, recordExam]);
+
+  // The timer callback always submits the latest answers.
+  const submitRef = useRef(submit);
+  useEffect(() => {
+    submitRef.current = submit;
+  }, [submit]);
 
   // The clock is driven by a wall-clock deadline rather than a decrementing
   // counter, so a throttled background tab cannot gain the student extra time.
+  // At zero the paper submits itself with whatever has been answered.
   useEffect(() => {
-    if (phase !== "running" || deadline === null) return;
+    if (screen.type !== "running" || deadline === null) return;
     const id = window.setInterval(() => {
       const remaining = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
       setSecondsLeft(remaining);
       if (remaining === 0) {
         window.clearInterval(id);
-        submit();
+        submitRef.current();
       }
     }, 1000);
     return () => window.clearInterval(id);
-  }, [phase, deadline, submit]);
+  }, [screen.type, deadline]);
 
   function start() {
     setAnswers(emptyAnswers);
     setSectionIndex(0);
     setSecondsLeft(EXAM.totalMinutes * 60);
     setDeadline(Date.now() + EXAM.totalMinutes * 60 * 1000);
-    setPhase("running");
+    setScreen({ type: "running" });
   }
 
-  if (phase === "brief") return <Brief onStart={start} />;
-  if (phase === "submitted") {
-    return <Result answers={answers} secondsLeft={secondsLeft} onRestart={() => setPhase("brief")} />;
+  // Results stay hidden until the mandatory feedback is in.
+  if (screen.type !== "running" && pending) {
+    return (
+      <FeedbackForm
+        exam={pending}
+        onSubmit={(fb) => {
+          submitExamFeedback(pending.examId, fb);
+          setScreen({ type: "result", examId: pending.examId });
+          // The student may have clicked elsewhere while the form was forced; results come first.
+          go("exam");
+        }}
+      />
+    );
   }
 
+  if (screen.type === "result") {
+    const record = examRecord(screen.examId);
+    if (record) return <Result record={record} onBack={() => setScreen({ type: "hub" })} />;
+  }
+  if (screen.type === "brief") return <Brief onStart={start} onBack={() => setScreen({ type: "hub" })} />;
+  if (screen.type === "running") {
+    return (
+      <Running
+        answers={answers}
+        setAnswers={setAnswers}
+        sectionIndex={sectionIndex}
+        setSectionIndex={setSectionIndex}
+        secondsLeft={secondsLeft}
+        confirming={confirming}
+        setConfirming={setConfirming}
+        onSubmit={submit}
+      />
+    );
+  }
+  return <Hub exams={exams} onOpenBrief={() => setScreen({ type: "brief" })} onOpenResult={(examId) => setScreen({ type: "result", examId })} />;
+}
+
+/** Grades every section. Email and reading go through the AI grader. */
+function gradePaper(answers: Answers): ExamSectionResult[] {
+  return EXAM.sections.map((s): ExamSectionResult => {
+    if (s.kind === "mcq") {
+      const correct = s.questions.filter((q) => answers.mcq[q.id] === q.a).length;
+      return { kind: "mcq", label: s.label, score: Math.round((correct / s.questions.length) * 100), detail: `${correct}/${s.questions.length} correct` };
+    }
+    if (s.kind === "coding") {
+      return {
+        kind: "coding", label: s.label, score: answers.codeSubmitted ? 100 : 0,
+        detail: answers.codeSubmitted ? "Accepted on hidden tests" : "No accepted submission",
+      };
+    }
+    if (s.kind === "email") {
+      const prompt = EMAIL_PROMPTS.find((p) => p.id === s.promptId);
+      if (!prompt || wordCount(answers.email) < 25) {
+        return {
+          kind: "email", label: s.label, score: 0, detail: "Not attempted",
+          ai: { summary: "Fewer than 25 words were written, so the AI grader had nothing to assess.", suggestions: ["Budget the section's 15 minutes: outline, write, then proofread."] },
+        };
+      }
+      const fb = analyzeEmail(answers.email, prompt);
+      return { kind: "email", label: s.label, score: fb.overall, detail: `AI score ${fb.overall}`, ai: { summary: fb.summary, suggestions: fb.suggestions } };
+    }
+    const passage = PASSAGES.find((p) => p.id === s.passageId);
+    if (!passage) return { kind: "reading", label: s.label, score: 0, detail: "Not available" };
+    const fb = analyzeReading(passage, answers.reading, answers.summary);
+    return { kind: "reading", label: s.label, score: fb.overall, detail: `AI score ${fb.overall} · ${fb.correct}/${passage.questions.length} correct`, ai: { summary: fb.summary, suggestions: fb.suggestions } };
+  });
+}
+
+/* ---------------- hub ---------------- */
+
+function Hub({
+  exams,
+  onOpenBrief,
+  onOpenResult,
+}: {
+  exams: ExamRecord[];
+  onOpenBrief: () => void;
+  onOpenResult: (examId: string) => void;
+}) {
   return (
-    <Running
-      answers={answers}
-      setAnswers={setAnswers}
-      sectionIndex={sectionIndex}
-      setSectionIndex={setSectionIndex}
-      secondsLeft={secondsLeft}
-      confirming={confirming}
-      setConfirming={setConfirming}
-      onSubmit={submit}
-    />
+    <div>
+      <Kicker>Exams</Kicker>
+      <H2>
+        Your <Serif>papers.</Serif>
+      </H2>
+      <p style={{ color: C.inkSoft, marginTop: 8, fontSize: 15.5, maxWidth: 640 }}>
+        Exams assigned to your cohort. Every score adds to your college leaderboard points.
+      </p>
+
+      <div className="as-split-main" style={{ marginTop: 20 }}>
+        <Card style={{ padding: 0, overflow: "hidden" }}>
+          <div style={{ padding: "14px 18px", borderBottom: `1px solid ${C.line}`, fontFamily: FD, fontWeight: 600, fontSize: 16 }}>Open & upcoming</div>
+          {EXAM_LISTINGS.map((e, i) => {
+            const done = exams.find((r) => r.examId === e.id);
+            const open = e.status === "open" && !done;
+            return (
+              <div key={e.id} style={{ display: "flex", alignItems: "center", gap: 14, padding: "15px 18px", borderTop: i ? `1px solid ${C.line}` : "none", flexWrap: "wrap" }}>
+                <span style={{ width: 42, height: 42, flex: "none", borderRadius: 12, background: open ? C.warnBg : C.cream, color: open ? C.goldDeep : C.inkMute, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  {open ? <ClipboardCheck size={20} /> : done ? <Check size={20} /> : <CalendarClock size={20} />}
+                </span>
+                <span style={{ flex: 1, minWidth: 200 }}>
+                  <span style={{ display: "block", fontFamily: FD, fontWeight: 600, fontSize: 15.5 }}>{e.title}</span>
+                  <span style={{ display: "block", fontSize: 13, color: C.inkMute, marginTop: 2 }}>
+                    {e.format} · {e.minutes} min · {done ? "Submitted" : e.when}
+                  </span>
+                </span>
+                {done ? (
+                  <button onClick={() => onOpenResult(e.id)} style={ghostButton}>
+                    View result · {done.percent}%
+                  </button>
+                ) : open ? (
+                  <button onClick={onOpenBrief} style={{ ...primaryButton, padding: "10px 16px" }}>
+                    Start <ArrowRight size={15} />
+                  </button>
+                ) : (
+                  <Pill>
+                    <Lock size={10} style={{ display: "inline", marginRight: 4, verticalAlign: -1 }} />
+                    not open yet
+                  </Pill>
+                )}
+              </div>
+            );
+          })}
+        </Card>
+
+        <Card style={{ padding: 0, overflow: "hidden" }}>
+          <div style={{ padding: "14px 18px", borderBottom: `1px solid ${C.line}`, fontFamily: FD, fontWeight: 600, fontSize: 16 }}>Past results</div>
+          {exams.filter((e) => !EXAM_LISTINGS.some((l) => l.id === e.examId)).map((e, i) => (
+            <button
+              key={e.examId}
+              onClick={() => onOpenResult(e.examId)}
+              className="as-row"
+              style={{ width: "100%", textAlign: "left", border: "none", borderTop: i ? `1px solid ${C.line}` : "none", background: C.white, padding: "13px 18px", cursor: "pointer", display: "flex", alignItems: "center", gap: 12, fontFamily: FB, color: C.ink }}
+            >
+              <Award size={18} color={C.goldDeep} />
+              <span style={{ flex: 1 }}>
+                <span style={{ display: "block", fontWeight: 600, fontSize: 14.5 }}>{e.title}</span>
+                <span style={{ display: "block", fontSize: 12.5, color: C.inkMute }}>{e.daysAgo !== undefined ? `${e.daysAgo} days ago` : "Recently"} · +{e.points} pts</span>
+              </span>
+              <span style={{ fontFamily: FD, fontWeight: 700, fontSize: 18 }}>{e.percent}%</span>
+            </button>
+          ))}
+        </Card>
+      </div>
+    </div>
   );
 }
 
+const primaryButton: React.CSSProperties = {
+  background: blueGrad, color: "#fff", border: "none", borderRadius: 12, padding: "13px 24px", fontFamily: FB, fontWeight: 600,
+  fontSize: 15, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8,
+};
+
+const ghostButton: React.CSSProperties = {
+  border: `1px solid ${C.line}`, background: C.white, borderRadius: 11, padding: "10px 16px", fontFamily: FB, fontWeight: 600,
+  fontSize: 14, cursor: "pointer", color: C.ink,
+};
+
 /* ---------------- brief ---------------- */
 
-function Brief({ onStart }: { onStart: () => void }) {
+function Brief({ onStart, onBack }: { onStart: () => void; onBack: () => void }) {
   const totalQuestions =
     EXAM.sections.reduce((n, s) => n + (s.kind === "mcq" ? s.questions.length : s.kind === "reading" ? 3 : 1), 0);
 
   return (
     <div>
+      <BackLink label="All exams" onClick={onBack} />
       <Kicker>Exam</Kicker>
       <H2>
         Placement Mock <Serif>#4</Serif>
       </H2>
       <p style={{ color: C.inkSoft, marginTop: 8, fontSize: 15.5, maxWidth: 620 }}>
         A full placement-style paper: aptitude MCQs, one coding problem judged on hidden tests, and two written
-        sections your faculty grades.
+        sections graded by AI.
       </p>
 
       <div className="as-split-main" style={{ marginTop: 20 }}>
@@ -128,7 +292,7 @@ function Brief({ onStart }: { onStart: () => void }) {
 
           <button
             onClick={onStart}
-            style={{ marginTop: 22, background: blueGrad, color: "#fff", border: "none", borderRadius: 12, padding: "13px 24px", fontFamily: FB, fontWeight: 600, fontSize: 15, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8 }}
+            style={{ ...primaryButton, marginTop: 22 }}
           >
             Start exam <ClipboardCheck size={17} />
           </button>
@@ -307,13 +471,15 @@ function Running({
 }
 
 function sectionProgress(answers: Answers) {
+  const summaryDone = wordCount(answers.summary) >= SUMMARY_WORDS[0] ? 1 : 0;
   return EXAM.sections.map((s) => {
     if (s.kind === "mcq") return { label: s.label, done: Object.keys(answers.mcq).length, total: s.questions.length };
     if (s.kind === "reading") {
       const passage = PASSAGES.find((p) => p.id === s.passageId);
-      return { label: s.label, done: Object.keys(answers.reading).length, total: passage?.questions.length ?? 3 };
+      // The questions plus the summary.
+      return { label: s.label, done: Object.keys(answers.reading).length + summaryDone, total: (passage?.questions.length ?? 3) + 1 };
     }
-    if (s.kind === "email") return { label: s.label, done: answers.email.trim().split(/\s+/).filter(Boolean).length >= 25 ? 1 : 0, total: 1 };
+    if (s.kind === "email") return { label: s.label, done: wordCount(answers.email) >= 25 ? 1 : 0, total: 1 };
     return { label: s.label, done: answers.codeSubmitted ? 1 : 0, total: 1 };
   });
 }
@@ -349,7 +515,7 @@ function SectionBody({
           Run as often as you like. <strong style={{ color: C.ink }}>Submit</strong> records your attempt for this section —
           only the last submission counts.
         </div>
-        <CodePanel exercise={exercise} solved={answers.codeSubmitted} onSolved={() => setAnswers((a) => ({ ...a, codeSubmitted: true }))} />
+        <CodePanel exercise={exercise} solved={answers.codeSubmitted} onSolved={() => setAnswers((a) => ({ ...a, codeSubmitted: true }))} context="exam" />
       </div>
     );
   }
@@ -369,7 +535,7 @@ function SectionBody({
           style={{ width: "100%", minHeight: 300, marginTop: 14, border: `1px solid ${C.line}`, borderRadius: 12, padding: 14, fontFamily: FB, fontSize: 14.5, lineHeight: 1.7, outline: "none", resize: "vertical", color: C.ink }}
         />
         <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, fontSize: 13, color: C.inkMute, flexWrap: "wrap", gap: 8 }}>
-          <span>Graded by faculty after the window closes.</span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Sparkles size={13} color={C.violet} /> Graded by AI when you submit the paper.</span>
           <span style={{ fontFamily: FM }}>
             {words} words {prompt ? `· aim for ${prompt.idealWords[0]}–${prompt.idealWords[1]}` : ""}
           </span>
@@ -419,6 +585,19 @@ function SectionBody({
               </div>
             </div>
           ))}
+        </div>
+        <div style={{ marginTop: 18, paddingTop: 16, borderTop: `1px solid ${C.line}` }}>
+          <div style={{ fontSize: 14.5, fontWeight: 600 }}>Summarise the passage in your own words</div>
+          <div style={{ fontSize: 13, color: C.inkMute, marginTop: 3 }}>
+            {SUMMARY_WORDS[0]}–{SUMMARY_WORDS[1]} words. The AI grader checks whether you caught the main ideas.
+          </div>
+          <textarea
+            value={answers.summary}
+            onChange={(e) => setAnswers((a) => ({ ...a, summary: e.target.value }))}
+            aria-label="Passage summary"
+            style={{ width: "100%", minHeight: 110, marginTop: 10, border: `1px solid ${C.line}`, borderRadius: 12, padding: 12, fontFamily: FB, fontSize: 14, lineHeight: 1.6, outline: "none", resize: "vertical", color: C.ink, background: C.white }}
+          />
+          <div style={{ fontFamily: FM, fontSize: 12, color: C.inkMute, marginTop: 6 }}>{wordCount(answers.summary)} words</div>
         </div>
       </Card>
     </div>
@@ -613,101 +792,186 @@ function ConfirmSubmit({
   );
 }
 
-function Result({
-  answers,
-  secondsLeft,
-  onRestart,
-}: {
-  answers: Answers;
-  secondsLeft: number;
-  onRestart: () => void;
-}) {
-  const mcqSection = EXAM.sections.find((s) => s.kind === "mcq");
-  const mcqQuestions = mcqSection && mcqSection.kind === "mcq" ? mcqSection.questions : [];
-  const mcqScore = mcqQuestions.reduce((n, q) => n + (answers.mcq[q.id] === q.a ? 1 : 0), 0);
+function BackLink({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{ border: "none", background: "none", color: C.inkSoft, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontFamily: FB, fontSize: 14, fontWeight: 600, padding: 0, marginBottom: 12 }}
+    >
+      <ChevronLeft size={17} /> {label}
+    </button>
+  );
+}
 
-  const readingSection = EXAM.sections.find((s) => s.kind === "reading");
-  const passage = readingSection && readingSection.kind === "reading" ? PASSAGES.find((p) => p.id === readingSection.passageId) : undefined;
-  const readingScore = passage ? passage.questions.reduce((n, q) => n + (answers.reading[q.id] === q.a ? 1 : 0), 0) : 0;
+/* ---------------- mandatory feedback ---------------- */
 
-  const usedMinutes = Math.round((EXAM.totalMinutes * 60 - secondsLeft) / 60);
-  const emailWords = answers.email.trim() ? answers.email.trim().split(/\s+/).length : 0;
+const DIFFICULTY_OPTIONS: ExamFeedback["difficulty"][] = ["Too easy", "About right", "Too hard"];
+
+function FeedbackForm({ exam, onSubmit }: { exam: ExamRecord; onSubmit: (fb: Omit<ExamFeedback, "submittedAt">) => void }) {
+  const [rating, setRating] = useState(0);
+  const [clarity, setClarity] = useState(0);
+  const [difficulty, setDifficulty] = useState<ExamFeedback["difficulty"] | null>(null);
+  const [comments, setComments] = useState("");
+  const [touched, setTouched] = useState(false);
+  const complete = rating > 0 && clarity > 0 && difficulty !== null;
+
+  function send() {
+    setTouched(true);
+    if (!complete || !difficulty) return;
+    onSubmit({ rating, clarity, difficulty, comments: comments.trim() });
+  }
 
   return (
-    <div style={{ maxWidth: 760, margin: "0 auto", paddingTop: 20 }}>
+    <div style={{ maxWidth: 640, margin: "0 auto", paddingTop: 12 }}>
       <div style={{ textAlign: "center" }}>
-        <div style={{ width: 84, height: 84, borderRadius: 999, background: goldGrad, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto" }}>
-          <Award size={42} color="#3A2A00" />
+        <div style={{ width: 72, height: 72, borderRadius: 999, background: tint(C.royal, 12), color: C.royal, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto" }}>
+          <MessageSquareHeart size={34} />
         </div>
-        <H2 style={{ fontSize: 28, marginTop: 18 }}>Paper submitted</H2>
-        <p style={{ color: C.inkSoft, marginTop: 8, fontSize: 15 }}>
-          Finished in {usedMinutes} minute{usedMinutes === 1 ? "" : "s"}. Auto-graded sections are below; written sections
-          appear once faculty releases them.
+        <H2 style={{ fontSize: 26, marginTop: 16 }}>{exam.title} submitted</H2>
+        <p style={{ color: C.inkSoft, marginTop: 8, fontSize: 15, lineHeight: 1.6 }}>
+          One required step before your results: tell us how the paper went. It takes under a minute and goes to the AlgoSpark team.
         </p>
       </div>
 
-      <div className="as-grid-2" style={{ marginTop: 24 }}>
-        <ResultCard
-          title="MCQ · auto-graded"
-          value={`${mcqScore}/${mcqQuestions.length}`}
-          detail={`${Math.round((mcqScore / Math.max(1, mcqQuestions.length)) * 100)}% correct`}
-          tone={mcqScore >= mcqQuestions.length * 0.6 ? "good" : "warn"}
-        />
-        <ResultCard
-          title="Coding · judged"
-          value={answers.codeSubmitted ? "Submitted" : "Not attempted"}
-          detail={answers.codeSubmitted ? "Hidden tests passed on submit" : "No submission recorded"}
-          tone={answers.codeSubmitted ? "good" : "warn"}
-        />
-        <ResultCard
-          title="Paragraph reading · auto-graded"
-          value={`${readingScore}/${passage?.questions.length ?? 0}`}
-          detail="Comprehension section"
-          tone={passage && readingScore >= passage.questions.length * 0.6 ? "good" : "warn"}
-        />
-        <ResultCard
-          title="Email writing · pending"
-          value={emailWords ? `${emailWords} words` : "Not attempted"}
-          detail="Faculty grades this section"
-          tone="pending"
-        />
-      </div>
+      <Card style={{ padding: 22, marginTop: 20 }}>
+        <RatingRow label="Overall, how was this exam?" value={rating} onChange={setRating} error={touched && !rating} />
+        <RatingRow label="Were the questions and instructions clear?" value={clarity} onChange={setClarity} error={touched && !clarity} />
 
-      <div style={{ display: "flex", justifyContent: "center", gap: 12, marginTop: 24 }}>
-        <button
-          onClick={onRestart}
-          style={{ border: `1px solid ${C.line}`, background: C.white, borderRadius: 12, padding: "11px 20px", fontFamily: FB, fontWeight: 600, fontSize: 14.5, cursor: "pointer" }}
-        >
-          Back to exams
+        <div style={{ marginTop: 18 }}>
+          <div style={{ fontSize: 14.5, fontWeight: 600, color: touched && !difficulty ? C.red : C.ink }}>How difficult was it?</div>
+          <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+            {DIFFICULTY_OPTIONS.map((d) => (
+              <button
+                key={d}
+                onClick={() => setDifficulty(d)}
+                aria-pressed={difficulty === d}
+                style={{
+                  border: `1.5px solid ${difficulty === d ? C.royal : C.line}`,
+                  background: difficulty === d ? tint(C.royal, 8) : C.white, color: difficulty === d ? C.royal : C.inkSoft,
+                  borderRadius: 999, padding: "8px 16px", fontFamily: FB, fontWeight: 600, fontSize: 13.5, cursor: "pointer",
+                }}
+              >
+                {d}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ marginTop: 18 }}>
+          <div style={{ fontSize: 14.5, fontWeight: 600 }}>
+            Anything else? <span style={{ color: C.inkMute, fontWeight: 400 }}>(optional)</span>
+          </div>
+          <textarea
+            value={comments}
+            onChange={(e) => setComments(e.target.value)}
+            placeholder="Timing, a confusing question, a technical problem…"
+            aria-label="Feedback comments"
+            maxLength={800}
+            style={{ width: "100%", minHeight: 100, marginTop: 10, border: `1px solid ${C.line}`, borderRadius: 12, padding: 12, fontFamily: FB, fontSize: 14, lineHeight: 1.6, outline: "none", resize: "vertical", color: C.ink, background: C.white }}
+          />
+        </div>
+
+        {touched && !complete && (
+          <div role="alert" style={{ marginTop: 12, background: C.redBg, color: C.red, borderRadius: 11, padding: "10px 13px", fontSize: 13.5 }}>
+            Answer the three rating questions to see your results.
+          </div>
+        )}
+
+        <button onClick={send} style={{ ...primaryButton, marginTop: 18, width: "100%", justifyContent: "center" }}>
+          Submit feedback & see results <ArrowRight size={16} />
         </button>
+      </Card>
+    </div>
+  );
+}
+
+function RatingRow({ label, value, onChange, error }: { label: string; value: number; onChange: (v: number) => void; error: boolean }) {
+  return (
+    <div style={{ marginTop: 14 }}>
+      <div style={{ fontSize: 14.5, fontWeight: 600, color: error ? C.red : C.ink }}>{label}</div>
+      <div style={{ display: "flex", gap: 6, marginTop: 8 }} role="radiogroup" aria-label={label}>
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button
+            key={n}
+            role="radio"
+            aria-checked={value === n}
+            aria-label={`${n} of 5`}
+            onClick={() => onChange(n)}
+            style={{ border: "none", background: "none", cursor: "pointer", padding: 2, display: "flex" }}
+          >
+            <Star size={28} fill={n <= value ? C.gold : "none"} strokeWidth={1.6} color={n <= value ? C.goldDeep : C.inkMute} />
+          </button>
+        ))}
       </div>
     </div>
   );
 }
 
-function ResultCard({
-  title,
-  value,
-  detail,
-  tone,
-}: {
-  title: string;
-  value: string;
-  detail: string;
-  tone: "good" | "warn" | "pending";
-}) {
-  const color = tone === "good" ? C.green : tone === "warn" ? C.goldDeep : C.inkMute;
-  const bg = tone === "good" ? C.greenBg : tone === "warn" ? C.warnBg : C.cream;
+/* ---------------- result ---------------- */
+
+function Result({ record, onBack }: { record: ExamRecord; onBack: () => void }) {
   return (
-    <Card style={{ padding: 18 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <span style={{ width: 10, height: 10, borderRadius: 999, background: color }} />
-        <span style={{ color: C.inkMute, fontSize: 13 }}>{title}</span>
+    <div style={{ maxWidth: 820, margin: "0 auto", paddingTop: 8 }}>
+      <BackLink label="All exams" onClick={onBack} />
+      <div style={{ textAlign: "center" }}>
+        <div style={{ width: 84, height: 84, borderRadius: 999, background: goldGrad, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto" }}>
+          <Award size={42} color="#3A2A00" />
+        </div>
+        <H2 style={{ fontSize: 28, marginTop: 18 }}>
+          {record.title} · {record.percent}%
+        </H2>
+        <p style={{ color: C.inkSoft, marginTop: 8, fontSize: 15 }}>
+          Finished in {record.usedMinutes} minute{record.usedMinutes === 1 ? "" : "s"} ·{" "}
+          <strong style={{ color: C.goldDeep }}>+{record.points} points</strong> added to your college leaderboard total.
+        </p>
       </div>
-      <div style={{ fontFamily: FD, fontWeight: 700, fontSize: 22, marginTop: 8 }}>{value}</div>
-      <div style={{ marginTop: 8, display: "inline-block", background: bg, color, borderRadius: 999, padding: "5px 11px", fontSize: 12.5, fontFamily: FM }}>
-        {detail}
+
+      <div className="as-grid-2" style={{ marginTop: 24 }}>
+        {record.sections.map((s) => {
+          const tone = s.score >= 60 ? C.green : s.score > 0 ? C.goldDeep : C.red;
+          const Icon = SECTION_ICON[s.kind];
+          return (
+            <Card key={s.kind} style={{ padding: 18 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ width: 34, height: 34, borderRadius: 10, background: tint(SECTION_COLOR[s.kind], 10), color: SECTION_COLOR[s.kind], display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Icon size={17} />
+                </span>
+                <span style={{ flex: 1, color: C.inkSoft, fontSize: 14, fontWeight: 600 }}>{s.label}</span>
+                {s.ai && (
+                  <Pill color={C.violet} bg={tint(C.violet, 10)}>
+                    AI graded
+                  </Pill>
+                )}
+              </div>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: 10 }}>
+                <span style={{ fontFamily: FD, fontWeight: 700, fontSize: 26 }}>{s.score}</span>
+                <span style={{ color: C.inkMute, fontSize: 13 }}>/ 100 · {s.detail}</span>
+              </div>
+              <div style={{ marginTop: 8 }}>
+                <ProgressBar value={s.score} color={tone} height={6} />
+              </div>
+              {s.ai && (
+                <div style={{ marginTop: 12 }}>
+                  <div style={{ fontFamily: FM, fontSize: 11, color: C.inkMute, letterSpacing: ".08em" }}>FEEDBACK</div>
+                  <p style={{ fontSize: 13.5, color: C.inkSoft, lineHeight: 1.6, margin: "4px 0 0" }}>{s.ai.summary}</p>
+                  <div style={{ fontFamily: FM, fontSize: 11, color: C.inkMute, letterSpacing: ".08em", marginTop: 10 }}>SUGGESTIONS</div>
+                  <ul style={{ margin: "4px 0 0", paddingLeft: 18, fontSize: 13, color: C.inkSoft, lineHeight: 1.6 }}>
+                    {s.ai.suggestions.slice(0, 3).map((x) => (
+                      <li key={x}>{x}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </Card>
+          );
+        })}
       </div>
-    </Card>
+
+      <div style={{ display: "flex", justifyContent: "center", gap: 12, marginTop: 24 }}>
+        <button onClick={onBack} style={ghostButton}>
+          Back to exams
+        </button>
+      </div>
+    </div>
   );
 }

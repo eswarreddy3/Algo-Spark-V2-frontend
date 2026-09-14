@@ -129,7 +129,7 @@ export function CourseProgressProvider({
       const next: TopicProgress = { ...before, ...patch(before) };
       if (!before.completedAt && topicModules(topic).every((m) => isModuleDone(topic, next, m))) {
         next.completedAt = new Date().toISOString();
-        onAward?.({ points: topic.points, title: "Topic complete!", sub: `+${topic.points} XP · ${topic.title}` });
+        onAward?.({ ref: `topic:${topic.id}`, points: topic.points, title: "Topic complete!", sub: `+${topic.points} XP · ${topic.title}` });
       }
       setState((prev) => ({ ...prev, [topic.id]: next }));
     },

@@ -2,31 +2,40 @@
 
 import React, { useMemo } from "react";
 import {
-  ArrowRight, CalendarClock, CheckCircle2, ChevronRight, ClipboardCheck, Circle, Clock, Code2, Flame,
-  FlaskConical, Lock, PenLine, Sparkles, Target, Trophy,
+  ArrowRight, BookOpen, BrainCircuit, CalendarClock, CheckCircle2, ChevronRight, ClipboardCheck, Circle, Clock, Code2, FileText, Flame,
+  FlaskConical, Lock, Mail, PenLine, PieChart, Sparkles, Trophy,
 } from "lucide-react";
 import { C, FB, FD, FM, blueGrad, goldGrad, tint } from "../theme";
 import { Card, H2, Kicker, Pill, ProgressBar, Serif } from "../ui";
 import { LABS } from "../labs/catalog";
 import { useLabsProgress } from "../labs/progress";
-import { PRACTICE_PROBLEMS } from "../data/problems";
-import { useSolved } from "../data/solved";
-import { LEADERBOARDS } from "../data/leaderboard";
-import { DIFF_COLOR } from "../labs/types";
+import { ALL_COURSES } from "../courses/catalog";
+import { useCourseProgress } from "../courses/progress";
+import { liveRank } from "../data/leaderboard";
+import { EXAM_LISTINGS } from "../data/exam";
+import { STUDENT } from "../data/student";
+import { usePerformance, type Activity } from "../data/performance";
 import { useNav } from "../nav";
+import { relativeTime, useNow } from "../useNow";
+import { useCoach, useOpenTarget } from "../coach/useCoach";
+import { BAND_COLOR, PlanItemRow, ReadinessRing } from "../coach/widgets";
 
 const PRIMARY_LAB = "cs-ds";
 
-const SCHEDULE = [
-  { when: "Today · 2:00 PM", what: "Data Structures Lab", where: "Lab 204", kind: "lab" as const },
-  { when: "Today · 6:00 PM", what: "Placement Mock #4 closes", where: "90 min · 4 sections", kind: "exam" as const },
-  { when: "Tomorrow · 10:00 AM", what: "Database Systems Lab", where: "Lab 108", kind: "lab" as const },
-];
+const ACTIVITY_ICON: Record<Activity["kind"], { icon: typeof Code2; color: string }> = {
+  lab: { icon: FlaskConical, color: C.royal },
+  course: { icon: BookOpen, color: C.cyan },
+  code: { icon: Code2, color: C.violet },
+  exam: { icon: ClipboardCheck, color: C.goldDeep },
+  email: { icon: Mail, color: C.cyan },
+  reading: { icon: FileText, color: C.goldDeep },
+};
 
 export function DashboardPage({ xp }: { xp: number }) {
-  const { go, openLabWeek, openProblem, openTechTab } = useNav();
+  const { go, openLabWeek } = useNav();
   const { currentWeek, weekProgress, labStats, isComplete } = useLabsProgress();
-  const { isSolved } = useSolved();
+  const { courseStats } = useCourseProgress();
+  const { activity, exams } = usePerformance();
 
   const lab = LABS.find((l) => l.id === PRIMARY_LAB) as (typeof LABS)[number];
   const week = currentWeek(lab.id);
@@ -40,27 +49,37 @@ export function DashboardPage({ xp }: { xp: number }) {
     weekDef?.exercise && !progress.code && "the coding task",
   ].filter(Boolean) as string[];
 
-  const solvedCount = PRACTICE_PROBLEMS.filter((p) => isSolved(p.exercise.id)).length;
-  const nextProblem = useMemo(
-    () => PRACTICE_PROBLEMS.find((p) => !isSolved(p.exercise.id)),
-    [isSolved],
-  );
+  // Overall completion: every lab week and course topic mapped to the student.
+  const completion = useMemo(() => {
+    const labTotals = LABS.map((l) => labStats(l.id));
+    const courseTotals = ALL_COURSES.map((c) => courseStats(c));
+    const done = [...labTotals, ...courseTotals].reduce((n, s) => n + s.completed, 0);
+    const total = [...labTotals, ...courseTotals].reduce((n, s) => n + s.total, 0);
+    return {
+      percent: total ? Math.round((done / total) * 100) : 0,
+      labs: labTotals.reduce((n, s) => n + s.completed, 0),
+      labsTotal: labTotals.reduce((n, s) => n + s.total, 0),
+      topics: courseTotals.reduce((n, s) => n + s.completed, 0),
+      topicsTotal: courseTotals.reduce((n, s) => n + s.total, 0),
+    };
+  }, [labStats, courseStats]);
 
-  const board = LEADERBOARDS.Section;
-  const you = board.find((r) => r.you);
+  const collegeRank = liveRank("College", xp);
+  const sectionRank = liveRank("Section", xp);
+  const upcoming = EXAM_LISTINGS.filter((e) => !exams.some((r) => r.examId === e.id));
 
   const tiles = [
-    { icon: Sparkles, label: "Points", value: xp.toLocaleString(), sub: "+150 this week", color: C.royal, bg: tint(C.royal, 12), onClick: () => go("profile") },
-    { icon: Trophy, label: "Section rank", value: `#${you?.rank ?? 9}`, sub: you && you.delta > 0 ? `up ${you.delta} places` : "holding steady", color: C.goldDeep, bg: C.warnBg, onClick: () => go("leaderboard") },
+    { icon: PieChart, label: "Overall completion", value: `${completion.percent}%`, sub: `${completion.labs}/${completion.labsTotal} lab weeks · ${completion.topics}/${completion.topicsTotal} topics`, color: C.cyan, bg: tint(C.cyan, 12), onClick: () => go("labs") },
+    { icon: Trophy, label: "College rank", value: `#${collegeRank}`, sub: `#${sectionRank} in ${STUDENT.section}`, color: C.goldDeep, bg: C.warnBg, onClick: () => go("leaderboard") },
+    { icon: Sparkles, label: "Points", value: xp.toLocaleString(), sub: "labs + coding + exams", color: C.royal, bg: tint(C.royal, 12), onClick: () => go("profile") },
     { icon: Flame, label: "Streak", value: "12 days", sub: "keep it alive today", color: C.red, bg: C.redBg, onClick: () => go("profile") },
-    { icon: CheckCircle2, label: "Problems solved", value: `${solvedCount}/${PRACTICE_PROBLEMS.length}`, sub: "practice bank", color: C.green, bg: C.greenBg, onClick: () => openTechTab("problems") },
   ];
 
   return (
     <div>
       <Kicker>Welcome back</Kicker>
       <H2 style={{ fontSize: 32 }}>
-        Good morning, <Serif>Aditya.</Serif>
+        Good morning, <Serif>{STUDENT.firstName}.</Serif>
       </H2>
       <p style={{ color: C.inkSoft, marginTop: 8, fontSize: 16 }}>
         {remaining.length
@@ -85,120 +104,80 @@ export function DashboardPage({ xp }: { xp: number }) {
 
       <div className="as-split-main" style={{ marginTop: 16 }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        <Card style={{ padding: 0, overflow: "hidden" }}>
-          <div style={{ background: "linear-gradient(120deg,#101433,#26327A)", padding: 22, color: "#fff" }}>
-            <div style={{ fontFamily: FM, fontSize: 12, color: "#AEB6E0", letterSpacing: ".1em" }}>CONTINUE WHERE YOU LEFT OFF</div>
-            <div style={{ fontFamily: FD, fontWeight: 700, fontSize: 22, marginTop: 8 }}>
-              {lab.name.replace(" Lab", "")} · Week {week}
-            </div>
-            <div style={{ color: "#C4CBF0", fontSize: 14, marginTop: 3 }}>
-              {weekDef?.title}
-              {remaining.length ? ` — ${listOf(remaining)} left` : " — completed"}
-            </div>
+          <Card style={{ padding: 0, overflow: "hidden" }}>
+            <div style={{ background: "linear-gradient(120deg,#101433,#26327A)", padding: 22, color: "#fff" }}>
+              <div style={{ fontFamily: FM, fontSize: 12, color: "#AEB6E0", letterSpacing: ".1em" }}>CURRENT WEEK · CONTINUE WHERE YOU LEFT OFF</div>
+              <div style={{ fontFamily: FD, fontWeight: 700, fontSize: 22, marginTop: 8 }}>
+                {lab.name.replace(" Lab", "")} · Week {week}
+              </div>
+              <div style={{ color: "#C4CBF0", fontSize: 14, marginTop: 3 }}>
+                {weekDef?.title}
+                {remaining.length ? ` — ${listOf(remaining)} left` : " — completed"}
+              </div>
 
-            <div style={{ display: "flex", gap: 10, marginTop: 16, flexWrap: "wrap" }}>
-              <button
-                onClick={() => openLabWeek(lab.id, week)}
-                style={{ background: goldGrad, color: "#3A2A00", border: "none", borderRadius: 11, padding: "11px 18px", fontFamily: FB, fontWeight: 600, fontSize: 14.5, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8 }}
-              >
-                Resume week <ArrowRight size={16} />
-              </button>
-              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <StepChip label="Material" done={progress.material} />
-                <StepChip label="MCQs" done={Boolean(progress.mcq?.passed)} />
-                {weekDef?.exercise && <StepChip label="Code" done={progress.code} />}
+              <div style={{ display: "flex", gap: 10, marginTop: 16, flexWrap: "wrap" }}>
+                <button
+                  onClick={() => openLabWeek(lab.id, week)}
+                  style={{ background: goldGrad, color: "#3A2A00", border: "none", borderRadius: 11, padding: "11px 18px", fontFamily: FB, fontWeight: 600, fontSize: 14.5, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8 }}
+                >
+                  Resume week <ArrowRight size={16} />
+                </button>
+                <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                  <StepChip label="Material" done={progress.material} />
+                  <StepChip label="MCQs" done={Boolean(progress.mcq?.passed)} />
+                  {weekDef?.exercise && <StepChip label="Code" done={progress.code} />}
+                </div>
               </div>
             </div>
-          </div>
-          <div style={{ padding: 18 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: C.inkMute, marginBottom: 10 }}>
-              <span>{lab.code} progress</span>
-              <span style={{ fontFamily: FM }}>{stats.percent}%</span>
-            </div>
-            <WeekRail labId={lab.id} weeks={lab.weeks.length} current={week} isComplete={isComplete} onPick={(w) => openLabWeek(lab.id, w)} />
-          </div>
-        </Card>
-        {nextProblem ? (
-          <Card style={{ padding: 18, display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap" }}>
-            <div style={{ width: 46, height: 46, borderRadius: 13, background: tint(C.violet, 14), color: C.violet, display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
-              <Target size={22} />
-            </div>
-            <div style={{ flex: 1, minWidth: 220 }}>
-              <div style={{ fontFamily: FM, fontSize: 11.5, color: C.inkMute, letterSpacing: ".1em" }}>RECOMMENDED PRACTICE</div>
-              <div style={{ fontFamily: FD, fontWeight: 600, fontSize: 17, marginTop: 4 }}>{nextProblem.exercise.title}</div>
-              <div style={{ display: "flex", gap: 7, marginTop: 8, flexWrap: "wrap" }}>
-                <Pill color={DIFF_COLOR[nextProblem.exercise.difficulty]} bg={tint(DIFF_COLOR[nextProblem.exercise.difficulty], 10)}>
-                  {nextProblem.exercise.difficulty}
-                </Pill>
-                {nextProblem.tags.map((t) => (
-                  <Pill key={t}>{t}</Pill>
-                ))}
-                <Pill color={C.blue} bg={tint(C.royal, 9)}>
-                  asked at {nextProblem.companies[0]}
-                </Pill>
+            <div style={{ padding: 18 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: C.inkMute, marginBottom: 10 }}>
+                <span>{lab.code} progress</span>
+                <span style={{ fontFamily: FM }}>{stats.percent}%</span>
               </div>
+              <WeekRail labId={lab.id} weeks={lab.weeks.length} current={week} isComplete={isComplete} onPick={(w) => openLabWeek(lab.id, w)} />
             </div>
-            <button
-              onClick={() => openProblem(nextProblem.exercise.id)}
-              style={{ border: "none", background: blueGrad, color: "#fff", borderRadius: 12, padding: "12px 20px", fontFamily: FB, fontWeight: 600, fontSize: 14.5, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}
-            >
-              Solve it <ArrowRight size={16} />
-            </button>
           </Card>
-        ) : (
-          <Card style={{ padding: 18 }}>
-            <div style={{ fontFamily: FD, fontWeight: 600, fontSize: 16 }}>Practice bank cleared</div>
-            <p style={{ color: C.inkMute, fontSize: 14, marginTop: 6 }}>Every problem is solved. New sets are added each fortnight.</p>
-          </Card>
-        )}
+
+          <CoachCard />
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <Card style={{ padding: 18 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: FD, fontWeight: 600, fontSize: 16 }}>
-              <CalendarClock size={17} color={C.royal} /> Up next
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: FD, fontWeight: 600, fontSize: 16 }}>
+                <CalendarClock size={17} color={C.royal} /> Upcoming exams
+              </div>
+              <button onClick={() => go("exam")} style={linkButton}>All exams</button>
             </div>
             <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
-              {SCHEDULE.map((s) => (
-                <button
-                  key={s.what}
-                  onClick={() => go(s.kind === "exam" ? "exam" : "labs")}
-                  className="as-row"
-                  style={{ textAlign: "left", border: `1px solid ${C.line}`, background: C.white, borderRadius: 12, padding: "11px 13px", cursor: "pointer", display: "flex", gap: 11, alignItems: "center" }}
-                >
-                  <span style={{ width: 34, height: 34, flex: "none", borderRadius: 10, background: s.kind === "exam" ? C.warnBg : tint(C.royal, 10), color: s.kind === "exam" ? C.goldDeep : C.royal, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    {s.kind === "exam" ? <ClipboardCheck size={17} /> : <FlaskConical size={17} />}
-                  </span>
-                  <span style={{ flex: 1, minWidth: 0 }}>
-                    <span style={{ display: "block", fontSize: 14, fontWeight: 600 }}>{s.what}</span>
-                    <span style={{ display: "block", fontSize: 12.5, color: C.inkMute, marginTop: 2 }}>
-                      {s.when} · {s.where}
+              {upcoming.length ? (
+                upcoming.map((e) => (
+                  <button
+                    key={e.id}
+                    onClick={() => go("exam")}
+                    className="as-row"
+                    style={{ textAlign: "left", border: `1px solid ${C.line}`, background: C.white, borderRadius: 12, padding: "11px 13px", cursor: "pointer", display: "flex", gap: 11, alignItems: "center" }}
+                  >
+                    <span style={{ width: 34, height: 34, flex: "none", borderRadius: 10, background: e.status === "open" ? C.warnBg : C.cream, color: e.status === "open" ? C.goldDeep : C.inkMute, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <ClipboardCheck size={17} />
                     </span>
-                  </span>
-                  <ChevronRight size={16} color={C.inkMute} />
-                </button>
-              ))}
+                    <span style={{ flex: 1, minWidth: 0 }}>
+                      <span style={{ display: "block", fontSize: 14, fontWeight: 600, color: C.ink }}>{e.title}</span>
+                      <span style={{ display: "block", fontSize: 12.5, color: C.inkMute, marginTop: 2 }}>
+                        {e.when} · {e.minutes} min
+                      </span>
+                    </span>
+                    {e.status === "open" && <Pill color={C.goldDeep} bg={C.warnBg}>open</Pill>}
+                    <ChevronRight size={16} color={C.inkMute} />
+                  </button>
+                ))
+              ) : (
+                <div style={{ fontSize: 13.5, color: C.inkMute }}>No exams scheduled for your cohort right now.</div>
+              )}
             </div>
           </Card>
 
-          <Card style={{ padding: 18 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-              <div style={{ fontFamily: FD, fontWeight: 600, fontSize: 16 }}>Section leaderboard</div>
-              <button onClick={() => go("leaderboard")} style={{ border: "none", background: "none", color: C.blue, fontWeight: 600, fontSize: 13, cursor: "pointer", fontFamily: FB }}>
-                View all
-              </button>
-            </div>
-            {board.slice(0, 5).map((r, i) => (
-              <div key={r.name} style={{ display: "flex", alignItems: "center", gap: 11, padding: "8px 0", borderTop: i ? `1px solid ${C.line}` : "none" }}>
-                <div style={{ width: 22, fontFamily: FD, fontWeight: 700, color: r.rank <= 3 ? C.goldDeep : C.inkMute, fontSize: 14 }}>{r.rank}</div>
-                <div style={{ width: 30, height: 30, borderRadius: 999, background: r.you ? blueGrad : C.cream, color: r.you ? "#fff" : C.inkSoft, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 600 }}>
-                  {r.name.split(" ").map((w) => w[0]).slice(0, 2).join("")}
-                </div>
-                <div style={{ flex: 1, fontSize: 14, fontWeight: r.you ? 600 : 500, color: r.you ? C.royal : C.ink }}>{r.name}</div>
-                <div style={{ fontFamily: FM, fontSize: 13, color: C.inkSoft }}>{r.points.toLocaleString()}</div>
-              </div>
-            ))}
-          </Card>
+          <RecentActivity activity={activity} onOpenProfile={() => go("profile")} />
         </div>
       </div>
 
@@ -233,7 +212,6 @@ export function DashboardPage({ xp }: { xp: number }) {
         })}
       </div>
 
-
       <div className="as-grid-3" style={{ marginTop: 16 }}>
         {[
           { t: "Tech practice", d: "Coding, courses and compilers", icon: Code2, c: C.royal, v: "tech" as const },
@@ -258,6 +236,111 @@ export function DashboardPage({ xp }: { xp: number }) {
         ))}
       </div>
     </div>
+  );
+}
+
+const linkButton: React.CSSProperties = { border: "none", background: "none", color: C.blue, fontWeight: 600, fontSize: 13, cursor: "pointer", fontFamily: FB };
+
+/** The AI Prep Coach on the dashboard: readiness, today's focus and this week — not the full plan. */
+function CoachCard() {
+  const { go } = useNav();
+  const openTarget = useOpenTarget();
+  const { readiness, weak, plan, goal } = useCoach();
+  const color = BAND_COLOR[readiness.band.tone];
+  const week = plan?.thisWeek;
+  const done = week ? week.items.filter((i) => i.done).length : 0;
+  const total = week?.items.length ?? 0;
+
+  return (
+    <Card style={{ padding: 0, overflow: "hidden" }}>
+      <div style={{ padding: "16px 18px", display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap", borderBottom: `1px solid ${C.line}` }}>
+        <ReadinessRing score={readiness.score} color={color} size={78} stroke={8} />
+        <div style={{ flex: 1, minWidth: 180 }}>
+          <div style={{ fontFamily: FM, fontSize: 11.5, color: C.inkMute, letterSpacing: ".1em", display: "flex", alignItems: "center", gap: 6 }}>
+            <BrainCircuit size={13} color={C.violet} /> AI PREP COACH
+          </div>
+          <div style={{ fontFamily: FD, fontWeight: 700, fontSize: 18, marginTop: 3 }}>
+            Readiness · <span style={{ color }}>{readiness.band.label}</span>
+          </div>
+          <div style={{ display: "flex", gap: 6, marginTop: 7, flexWrap: "wrap" }}>
+            {weak.slice(0, 3).map((a) => (
+              <Pill key={a.id} color={a.status === "weak" ? C.red : C.goldDeep} bg={a.status === "weak" ? C.redBg : C.warnBg}>
+                {a.label} {a.score ?? ""}
+              </Pill>
+            ))}
+          </div>
+        </div>
+        <button onClick={() => go("coach")} style={linkButton}>
+          Open coach
+        </button>
+      </div>
+
+      {goal && plan ? (
+        <>
+          <div style={{ padding: "12px 18px 4px", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+            <span style={{ fontFamily: FD, fontWeight: 600, fontSize: 15 }}>Today&apos;s focus</span>
+            <span style={{ marginLeft: "auto", fontSize: 12.5, color: C.inkMute }}>
+              This week · {done}/{total} done · plan week {plan.currentWeek} of {plan.totalWeeks}
+            </span>
+          </div>
+          <div style={{ padding: "0 18px 6px" }}>
+            <ProgressBar value={total ? (done / total) * 100 : 0} height={5} />
+          </div>
+          <div style={{ margin: "8px 18px 16px", border: `1px solid ${C.line}`, borderRadius: 12, overflow: "hidden" }}>
+            {plan.todaysFocus.length ? (
+              plan.todaysFocus.map((item, i) => <PlanItemRow key={item.id} item={item} first={i === 0} onOpen={() => openTarget(item.target)} />)
+            ) : (
+              <div style={{ padding: 16, fontSize: 13.5, color: C.inkMute }}>
+                {total && done === total ? "This week's plan is complete. Nice work." : "Everything left this week is waiting on a locked lab week."}
+              </div>
+            )}
+          </div>
+        </>
+      ) : (
+        <div style={{ padding: "14px 18px 18px", display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+          <p style={{ flex: 1, minWidth: 220, margin: 0, fontSize: 14, color: C.inkSoft, lineHeight: 1.55 }}>
+            Pick your target companies and a timeline, and the coach turns your gaps into a week-by-week plan with a daily focus.
+          </p>
+          <button
+            onClick={() => go("coach")}
+            style={{ background: blueGrad, color: "#fff", border: "none", borderRadius: 11, padding: "10px 16px", fontFamily: FB, fontWeight: 600, fontSize: 14, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 7 }}
+          >
+            Set my goal <ArrowRight size={15} />
+          </button>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+function RecentActivity({ activity, onOpenProfile }: { activity: Activity[]; onOpenProfile: () => void }) {
+  const now = useNow();
+  return (
+    <Card style={{ padding: 18 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+        <div style={{ fontFamily: FD, fontWeight: 600, fontSize: 16 }}>Recent activity</div>
+        <button onClick={onOpenProfile} style={linkButton}>Profile</button>
+      </div>
+      {activity.slice(0, 6).map((a, i) => {
+        const meta = ACTIVITY_ICON[a.kind];
+        const when = a.at !== undefined ? relativeTime(a.at, now) : a.daysAgo === 1 ? "Yesterday" : `${a.daysAgo} days ago`;
+        return (
+          <div key={a.id} style={{ display: "flex", alignItems: "center", gap: 11, padding: "9px 0", borderTop: i ? `1px solid ${C.line}` : "none" }}>
+            <span style={{ width: 30, height: 30, flex: "none", borderRadius: 9, background: tint(meta.color, 10), color: meta.color, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <meta.icon size={15} />
+            </span>
+            <span style={{ flex: 1, minWidth: 0 }}>
+              <span style={{ display: "block", fontSize: 13.5, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.title}</span>
+              <span style={{ display: "block", fontSize: 12, color: C.inkMute }}>
+                {a.detail}
+                {when ? ` · ${when}` : ""}
+              </span>
+            </span>
+            {a.points > 0 && <span style={{ fontFamily: FM, fontSize: 12, color: C.goldDeep }}>+{a.points}</span>}
+          </div>
+        );
+      })}
+    </Card>
   );
 }
 

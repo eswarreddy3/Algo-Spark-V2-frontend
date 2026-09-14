@@ -57,5 +57,22 @@ export const LEADERBOARDS: Record<Scope, LeaderRow[]> = {
 export const SCOPE_META: Record<Scope, { label: string; population: number }> = {
   Section: { label: "CSE-A · 62 students", population: 62 },
   Branch: { label: "Computer Science · 248 students", population: 248 },
-  College: { label: "All branches · 1 140 students", population: 1140 },
+  College: { label: "Your college · all branches · 1 140 students", population: 1140 },
 };
+
+/**
+ * The board with the student's row carrying their live points, re-sorted and
+ * re-ranked — so a lab week, a solved problem or an exam score moves them the
+ * moment it is recorded rather than on a nightly refresh.
+ */
+export function liveBoard(scope: Scope, points: number): LeaderRow[] {
+  return LEADERBOARDS[scope]
+    .map((r) => (r.you ? { ...r, points } : r))
+    .sort((a, b) => b.points - a.points || Number(Boolean(b.you)) - Number(Boolean(a.you)))
+    .map((r, i) => ({ ...r, rank: i + 1 }));
+}
+
+/** The student's rank in a scope, live. */
+export function liveRank(scope: Scope, points: number) {
+  return liveBoard(scope, points).find((r) => r.you)?.rank ?? 0;
+}

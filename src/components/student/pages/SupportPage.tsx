@@ -44,13 +44,13 @@ const FAQS: Faq[] = [
     id: "f6",
     category: "Exams",
     q: "When do written sections get graded?",
-    a: "Email and paragraph sections are graded by faculty after the exam window closes. MCQ and coding sections are graded automatically and appear immediately.",
+    a: "Straight away. Email and paragraph sections are graded by AI the moment you submit — each gets a score, written feedback and suggestions. MCQ and coding are graded automatically. Results appear after you send the short post-exam feedback, which is mandatory.",
   },
   {
     id: "f7",
     category: "Points",
     q: "How is the leaderboard calculated?",
-    a: "Points come from labs, practice problems, non-tech tasks and exams. You can view the leaderboard by section, branch or the whole college; rankings refresh nightly.",
+    a: "Your total is lab points + coding points + exam scores, added up over time. You are ranked against your own college only (you can narrow it to your branch or section), and your position updates as soon as a new score is recorded.",
   },
   {
     id: "f8",
@@ -63,13 +63,13 @@ const FAQS: Faq[] = [
 type TicketRecord = {
   id: string;
   subject: string;
-  status: "Open" | "In progress" | "Resolved";
+  status: "Open" | "Resolved";
   updated: string;
   replies: number;
 };
 
 const EXISTING_TICKETS: TicketRecord[] = [
-  { id: "TCK-2214", subject: "Compiler shows wrong output for Python 3", status: "In progress", updated: "2 hours ago", replies: 2 },
+  { id: "TCK-2214", subject: "Compiler shows wrong output for Python 3", status: "Open", updated: "2 hours ago", replies: 2 },
   { id: "TCK-2190", subject: "Week 4 slides missing a page", status: "Resolved", updated: "Yesterday", replies: 3 },
 ];
 
@@ -116,8 +116,8 @@ export function SupportPage() {
         How can we <Serif>help?</Serif>
       </H2>
       <p style={{ color: C.inkSoft, marginTop: 8, fontSize: 15.5, maxWidth: 620 }}>
-        Most questions are answered below. If yours is not, raise a ticket and your college admin picks it up — usually
-        within a working day.
+        Most questions are answered below. If yours is not, raise a ticket — it goes straight to the AlgoSpark support team,
+        usually answered within a working day.
       </p>
 
       <div className="as-split-main" style={{ marginTop: 20 }}>
@@ -183,7 +183,7 @@ export function SupportPage() {
               <LifeBuoy size={17} color={C.royal} /> Still stuck?
             </div>
             <p style={{ color: C.inkMute, fontSize: 14, marginTop: 6, lineHeight: 1.55 }}>
-              Raise a ticket and your college admin will get back to you.
+              Tickets go to the AlgoSpark support team (Super Admin), not your college.
             </p>
 
             {sent && (
@@ -292,7 +292,6 @@ function Field({
 function StatusPill({ status }: { status: TicketRecord["status"] }) {
   const map = {
     Open: { color: C.goldDeep, bg: C.warnBg },
-    "In progress": { color: C.blue, bg: tint(C.royal, 10) },
     Resolved: { color: C.green, bg: C.greenBg },
   } as const;
   const { color, bg } = map[status];

@@ -23,11 +23,12 @@ export type SearchResult = {
 
 const PAGES: { view: View; title: string; subtitle: string }[] = [
   { view: "dashboard", title: "Dashboard", subtitle: "Your progress at a glance" },
+  { view: "coach", title: "AI Prep Coach", subtitle: "Readiness score, gap map, prep plan and targeted drills" },
   { view: "labs", title: "Labs", subtitle: "Weekly lab courses" },
   { view: "tech", title: "Tech practice", subtitle: "Coding problems, courses, SQL and code compilers" },
   { view: "nontech", title: "Non-tech", subtitle: "Email writing, paragraph reading and courses" },
   { view: "exam", title: "Exam", subtitle: "Placement mock papers" },
-  { view: "leaderboard", title: "Leaderboard", subtitle: "Section, branch and college ranks" },
+  { view: "leaderboard", title: "Leaderboard", subtitle: "Your college ranking, by section or branch too" },
   { view: "profile", title: "Profile", subtitle: "Badges, activity and points" },
   { view: "support", title: "Support", subtitle: "Help articles and tickets" },
 ];
@@ -153,7 +154,7 @@ export const NOTIFICATIONS: Notification[] = [
   {
     id: "n4",
     title: "Ticket TCK-2214 updated",
-    body: "Admin replied to your compiler output question.",
+    body: "AlgoSpark support replied to your compiler output question.",
     when: "2 days ago",
     unread: false,
     target: { type: "view", view: "support" },

@@ -1,12 +1,15 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { CheckCircle2, ChevronDown, Circle, Clock, Loader2, Play, RotateCcw, Send, XCircle } from "lucide-react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { CalendarClock, CheckCircle2, ChevronDown, Circle, Clock, Gauge, Loader2, Play, RotateCcw, Send, XCircle } from "lucide-react";
 import { C, EDITOR, FB, FD, FM, blueGrad, goldGrad, tint } from "../theme";
 import { Card, Pill } from "../ui";
 import { CodeEditor } from "./CodeEditor";
 import { runCode, type RunResult, type TestResult } from "./runner";
 import { DIFF_COLOR, LANGUAGE_LABEL, type Exercise, type Language } from "./types";
+import { estimateComplexity, type ComplexityEstimate } from "./complexity";
+import { usePerformance, type CodeAttempt } from "../data/performance";
+import { formatSpan, useNow } from "../useNow";
 
 const FILE_NAME: Record<Language, string> = {
   python: "solution.py",
@@ -17,21 +20,35 @@ const FILE_NAME: Record<Language, string> = {
 
 const draftKey = (exerciseId: string, language: Language) => `algospark.draft.${exerciseId}.${language}`;
 
+/** The allowed attempt window for an exercise, as epoch ms. */
+export type AttemptWindow = { opens: number; closes: number };
+
 export function CodePanel({
   exercise,
   solved,
   onSolved,
+  context = "practice",
+  attemptWindow,
 }: {
   exercise: Exercise;
   solved: boolean;
   onSolved: () => void;
+  /** Where the attempt happens; every run and submit is logged with it. */
+  context?: CodeAttempt["context"];
+  attemptWindow?: AttemptWindow;
 }) {
+  const { logAttempt, attemptsFor } = usePerformance();
+  const openedAt = useRef(0);
+  const [complexity, setComplexity] = useState<ComplexityEstimate | null>(null);
+  useEffect(() => {
+    openedAt.current = Date.now();
+  }, [exercise.id]);
   const [language, setLanguage] = useState<Language>(exercise.languages[0]);
   const [sources, setSources] = useState<Partial<Record<Language, string>>>(() => ({ ...exercise.starter }));
   const [busy, setBusy] = useState<"run" | "submit" | null>(null);
   const [result, setResult] = useState<RunResult | null>(null);
   const [mode, setMode] = useState<"run" | "submit">("run");
-  const [tab, setTab] = useState<"tests" | "console">("tests");
+  const [tab, setTab] = useState<ResultTab>("tests");
   const [openTest, setOpenTest] = useState<string | null>(null);
 
   // Restore any draft the student left behind for this exercise + language.
@@ -80,7 +97,18 @@ export function CodePanel({
       setOpenTest(null);
       try {
         const res = await runCode({ exercise, language, source, mode: which });
+        const estimate = estimateComplexity(source, language);
+        const at = Date.now();
         setResult(res);
+        setComplexity(estimate);
+        logAttempt(
+          {
+            exerciseId: exercise.id, context, mode: which, at, execMs: res.totalMs, verdict: res.verdict,
+            passed: res.passed, total: res.total, complexity: estimate?.time,
+            late: attemptWindow ? at > attemptWindow.closes : false, windowClosesAt: attemptWindow?.closes,
+          },
+          openedAt.current || at,
+        );
         setTab(res.verdict === "compile-error" ? "console" : "tests");
         if (which === "submit" && res.verdict === "accepted") onSolved();
       } catch {
@@ -98,7 +126,7 @@ export function CodePanel({
         setBusy(null);
       }
     },
-    [busy, exercise, language, source, onSolved],
+    [busy, exercise, language, source, onSolved, logAttempt, context, attemptWindow],
   );
 
   const sampleCount = useMemo(() => exercise.tests.filter((t) => !t.hidden).length, [exercise.tests]);
@@ -115,8 +143,10 @@ export function CodePanel({
             {exercise.difficulty}
           </Pill>
           <Pill color={C.goldDeep} bg={C.warnBg}>{exercise.points} pts</Pill>
-          {exercise.targetComplexity && <Pill>{exercise.targetComplexity}</Pill>}
+          {exercise.targetComplexity && <Pill>target {exercise.targetComplexity}</Pill>}
         </div>
+
+        {attemptWindow && <WindowNotice window={attemptWindow} />}
 
         {exercise.statement.map((para, i) => (
           <p key={i} style={{ color: C.inkSoft, fontSize: 14.5, lineHeight: 1.65, marginTop: 12 }}>
@@ -215,6 +245,8 @@ export function CodePanel({
         </Card>
 
         <ResultsPanel
+          attempts={attemptsFor(exercise.id)}
+          complexity={complexity}
           result={result}
           busy={busy !== null}
           mode={mode}
@@ -256,7 +288,11 @@ function Spinner() {
   );
 }
 
+type ResultTab = "tests" | "console" | "attempts";
+
 function ResultsPanel({
+  attempts,
+  complexity,
   result,
   busy,
   mode,
@@ -266,11 +302,13 @@ function ResultsPanel({
   setOpenTest,
   accepted,
 }: {
+  attempts: CodeAttempt[];
+  complexity: ComplexityEstimate | null;
   result: RunResult | null;
   busy: boolean;
   mode: "run" | "submit";
-  tab: "tests" | "console";
-  setTab: (t: "tests" | "console") => void;
+  tab: ResultTab;
+  setTab: (t: ResultTab) => void;
   openTest: string | null;
   setOpenTest: (id: string | null) => void;
   accepted: boolean;
@@ -278,13 +316,13 @@ function ResultsPanel({
   return (
     <Card style={{ padding: 0, overflow: "hidden" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 4, borderBottom: `1px solid ${C.line}`, padding: "0 8px" }}>
-        {(["tests", "console"] as const).map((t) => (
+        {(["tests", "console", "attempts"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
             style={{ border: "none", background: "none", cursor: "pointer", padding: "12px 12px", fontFamily: FB, fontWeight: 600, fontSize: 13.5, color: tab === t ? C.royal : C.inkMute, borderBottom: `2.5px solid ${tab === t ? C.royal : "transparent"}`, marginBottom: -1 }}
           >
-            {t === "tests" ? "Test cases" : "Console"}
+            {t === "tests" ? "Test cases" : t === "console" ? "Console" : `Attempt log${attempts.length ? ` (${attempts.length})` : ""}`}
           </button>
         ))}
         {result && (
@@ -301,13 +339,29 @@ function ResultsPanel({
         )}
       </div>
 
-      {busy && (
+      {!busy && result && complexity && tab !== "attempts" && (
+        <div
+          title={complexity.basis}
+          style={{ padding: "10px 16px", borderBottom: `1px solid ${C.line}`, display: "flex", alignItems: "center", gap: 9, fontSize: 13, color: C.inkSoft, flexWrap: "wrap" }}
+        >
+          <Gauge size={15} color={C.violet} />
+          <span>
+            Your solution: <strong style={{ fontFamily: FM, color: C.ink }}>{complexity.time}</strong> time
+          </span>
+          <span style={{ color: C.inkMute, fontSize: 12.5 }}>{complexity.basis}</span>
+          <Pill style={{ marginLeft: "auto" }}>info only · not scored</Pill>
+        </div>
+      )}
+
+      {tab === "attempts" && <AttemptLog attempts={attempts} />}
+
+      {busy && tab !== "attempts" && (
         <div style={{ padding: 20, display: "flex", alignItems: "center", gap: 10, color: C.inkMute, fontSize: 14 }}>
           <Clock size={16} /> {mode === "submit" ? "Judging against all test cases…" : "Running sample cases…"}
         </div>
       )}
 
-      {!busy && !result && (
+      {!busy && !result && tab !== "attempts" && (
         <div style={{ padding: 20, color: C.inkMute, fontSize: 14 }}>
           Run your code to see the sample cases here. Submit also runs the hidden cases and records your attempt.
         </div>
@@ -400,6 +454,91 @@ function Field({ label, value, color }: { label: string; value: string; color?: 
     <div style={{ display: "grid", gridTemplateColumns: "78px 1fr", gap: 10, alignItems: "start" }}>
       <span style={{ color: C.inkMute }}>{label}</span>
       <span style={{ color: color ?? C.ink, wordBreak: "break-word" }}>{value}</span>
+    </div>
+  );
+}
+
+function WindowNotice({ window: w }: { window: AttemptWindow }) {
+  const now = useNow();
+  if (!now) return null;
+  const closed = now > w.closes;
+  const upcoming = now < w.opens;
+  const fmt = (t: number) =>
+    new Date(t).toLocaleString("en-IN", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
+  return (
+    <div
+      style={{
+        marginTop: 12, borderRadius: 12, padding: "10px 13px", fontSize: 13, display: "flex", gap: 9, alignItems: "flex-start",
+        background: closed ? C.redBg : C.cream, color: closed ? C.red : C.inkSoft,
+      }}
+    >
+      <CalendarClock size={15} style={{ flex: "none", marginTop: 2 }} />
+      <span>
+        <strong style={{ color: closed ? C.red : C.ink }}>Attempt window:</strong> {fmt(w.opens)} – {fmt(w.closes)}
+        {" · "}
+        {closed
+          ? "closed. You can still solve it to unlock the next week, but attempts are logged as late."
+          : upcoming
+            ? `opens in ${formatSpan(w.opens - now)}`
+            : `closes in ${formatSpan(w.closes - now)}`}
+      </span>
+    </div>
+  );
+}
+
+const VERDICT_LABEL: Record<string, string> = {
+  accepted: "Accepted",
+  "wrong-answer": "Wrong answer",
+  "compile-error": "Compile error",
+  "runtime-error": "Runtime error",
+};
+
+function formatElapsed(sec: number) {
+  if (sec < 60) return `${sec}s`;
+  const m = Math.floor(sec / 60);
+  if (m < 60) return `${m}m ${sec % 60}s`;
+  return `${Math.floor(m / 60)}h ${m % 60}m`;
+}
+
+/** Every run and submit on this exercise: when, how long in, how it ran. */
+function AttemptLog({ attempts }: { attempts: CodeAttempt[] }) {
+  if (!attempts.length) {
+    return (
+      <div style={{ padding: 20, color: C.inkMute, fontSize: 14 }}>
+        No attempts yet. Each run and submit is logged here with its timestamp, time since you opened the exercise and execution time.
+      </div>
+    );
+  }
+  return (
+    <div style={{ overflowX: "auto" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <thead>
+          <tr style={{ background: C.cream }}>
+            {["When", "Type", "Time in", "Exec", "Result", "Est. Big-O"].map((h) => (
+              <th key={h} style={{ textAlign: "left", padding: "9px 14px", fontFamily: FM, fontSize: 11, color: C.inkMute, fontWeight: 500, whiteSpace: "nowrap" }}>
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {attempts.map((a) => (
+            <tr key={a.id} style={{ borderTop: `1px solid ${C.line}` }}>
+              <td style={{ padding: "9px 14px", fontFamily: FM, fontSize: 12, whiteSpace: "nowrap" }}>
+                {new Date(a.at).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit", second: "2-digit" })}
+                {a.late && <Pill color={C.red} bg={C.redBg} style={{ marginLeft: 6 }}>late</Pill>}
+              </td>
+              <td style={{ padding: "9px 14px", textTransform: "capitalize" }}>{a.mode}</td>
+              <td style={{ padding: "9px 14px", fontFamily: FM, fontSize: 12 }}>{formatElapsed(a.elapsedSec)}</td>
+              <td style={{ padding: "9px 14px", fontFamily: FM, fontSize: 12 }}>{a.execMs ? `${a.execMs} ms` : "—"}</td>
+              <td style={{ padding: "9px 14px", color: a.verdict === "accepted" ? C.green : C.red, whiteSpace: "nowrap" }}>
+                {VERDICT_LABEL[a.verdict] ?? a.verdict} · {a.passed}/{a.total}
+              </td>
+              <td style={{ padding: "9px 14px", fontFamily: FM, fontSize: 12 }}>{a.complexity ?? "—"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

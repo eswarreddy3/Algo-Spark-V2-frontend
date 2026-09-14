@@ -13,6 +13,7 @@ import { MaterialPanel } from "./MaterialPanel";
 import { McqPanel } from "./McqPanel";
 import { useLabsProgress } from "./progress";
 import type { Lab, Week } from "./types";
+import { DAY, startOfWeek, useNow } from "../useNow";
 
 export type WeekTab = "material" | "quiz" | "code";
 
@@ -44,6 +45,14 @@ export function LabWorkspace({
   const progress = weekProgress(lab.id, active.n);
   const unlocked = isUnlocked(lab.id, active.n);
   const completed = isComplete(lab.id, active.n);
+  const now = useNow();
+  // Each lab week is attemptable Monday to Sunday. The current week's window
+  // is this calendar week; earlier and later weeks sit before and after it.
+  const attemptWindow = useMemo(() => {
+    if (!now) return undefined;
+    const opens = startOfWeek(now) + (active.n - currentWeek(lab.id)) * 7 * DAY;
+    return { opens, closes: opens + 7 * DAY - 60_000 };
+  }, [now, active.n, currentWeek, lab.id]);
 
   return (
     <div>
@@ -179,6 +188,8 @@ export function LabWorkspace({
                     exercise={active.exercise}
                     solved={progress.code}
                     onSolved={() => markCode(lab.id, active.n)}
+                    context="lab"
+                    attemptWindow={attemptWindow}
                   />
                 )}
               </div>

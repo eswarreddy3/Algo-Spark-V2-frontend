@@ -11,6 +11,7 @@ import type { WeekTab } from "./labs/LabWorkspace";
 
 export type View =
   | "dashboard"
+  | "coach"
   | "labs"
   | "tech"
   | "nontech"
@@ -43,12 +44,15 @@ export type CourseRoute = { courseId: string | null; topicId: string | null; mod
 /** SQL compiler tabs; `problemId` opens one problem from the Problems tab. */
 export type SqlRoute = { view: "problems" | "schema" | "playground"; problemId: string | null };
 
+/** How problems inside a coding module are segregated. */
+export type ProblemSegregation = "companies" | "topics" | "difficulty";
+
 export type TechRoute = {
   tab: TechTab;
-  /** Coding problems are browsed by topic or by company; `group` is the open topic/company, if any. */
+  /** Coding problems are grouped by module; `moduleId` is the open module, if any. */
+  moduleId: string | null;
   problemId: string | null;
-  browse: "topics" | "companies";
-  group: string | null;
+  browse: ProblemSegregation;
   course: CourseRoute;
   sql: SqlRoute;
 };
@@ -58,7 +62,7 @@ export const initialLabsRoute: LabsRoute = { labId: null, week: 1, tab: "materia
 export const initialCourseRoute: CourseRoute = { courseId: null, topicId: null, module: "material" };
 export const initialSqlRoute: SqlRoute = { view: "problems", problemId: null };
 export const initialTechRoute: TechRoute = {
-  tab: "courses", problemId: null, browse: "topics", group: null, course: initialCourseRoute, sql: initialSqlRoute,
+  tab: "courses", moduleId: null, problemId: null, browse: "companies", course: initialCourseRoute, sql: initialSqlRoute,
 };
 export const initialNonTechRoute: NonTechRoute = { tab: "email", course: initialCourseRoute };
 
@@ -73,6 +77,8 @@ export type Nav = {
   setNonTechRoute: (route: NonTechRoute) => void;
   openLabWeek: (labId: string, week: number, tab?: WeekTab) => void;
   openProblem: (problemId: string) => void;
+  openSqlProblem: (problemId: string) => void;
+  openProblemModule: (moduleId: string, browse: ProblemSegregation) => void;
   openTechTab: (tab: TechTab) => void;
   openNonTechTab: (tab: NonTechTab) => void;
   openCourse: (scope: "tech" | "nontech", courseId: string) => void;

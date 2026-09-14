@@ -21,6 +21,8 @@ export type Check = { label: string; ok: boolean; detail: string };
 
 export type EmailFeedback = {
   overall: number;
+  /** Written feedback, in prose. */
+  summary: string;
   scores: Score[];
   checks: Check[];
   suggestions: string[];
@@ -140,8 +142,18 @@ export function analyzeEmail(text: string, prompt: EmailPrompt): EmailFeedback {
     scores.reduce((sum, s, i) => sum + s.value * [0.2, 0.25, 0.2, 0.15, 0.2][i], 0),
   );
 
+  const weakest = scores.slice().sort((a, b) => a.value - b.value)[0];
+  const strongest = scores.slice().sort((a, b) => b.value - a.value)[0];
+  const summary = [
+    overall >= 80 ? "This reads like a ready-to-send professional email." : overall >= 60 ? "A solid draft that needs one more pass before sending." : "The draft gets the request across but isn't yet professional enough to send.",
+    `${strongest.label} is your strongest area (${strongest.value}).`,
+    weakest.value < 75 ? `Focus on ${weakest.label.toLowerCase()} next (${weakest.value}) — ${weakest.hint.toLowerCase()}.` : "No area is weak; polish the wording.",
+    covered.length < prompt.mustMention.length ? `It leaves out ${prompt.mustMention.length - covered.length} point${prompt.mustMention.length - covered.length === 1 ? "" : "s"} the prompt asked for.` : "",
+  ].filter(Boolean).join(" ");
+
   return {
     overall,
+    summary,
     scores,
     checks,
     suggestions: suggestions.slice(0, 6),

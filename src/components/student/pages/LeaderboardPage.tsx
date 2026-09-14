@@ -4,9 +4,12 @@ import React, { useMemo, useState } from "react";
 import { Flame, Minus, Search, TrendingDown, TrendingUp, Trophy } from "lucide-react";
 import { C, FB, FD, FM, blueGrad, tint } from "../theme";
 import { Card, H2, Kicker, Pill, Serif } from "../ui";
-import { LEADERBOARDS, SCOPE_META, type LeaderRow, type Scope } from "../data/leaderboard";
+import { SCOPE_META, liveBoard, type LeaderRow, type Scope } from "../data/leaderboard";
+import { usePerformance } from "../data/performance";
+import { STUDENT } from "../data/student";
 
-const SCOPES: Scope[] = ["Section", "Branch", "College"];
+// Ranking is per college; section and branch narrow the same college board.
+const SCOPES: Scope[] = ["College", "Branch", "Section"];
 
 const initials = (name: string) =>
   name
@@ -16,10 +19,11 @@ const initials = (name: string) =>
     .join("");
 
 export function LeaderboardPage() {
-  const [scope, setScope] = useState<Scope>("Section");
+  const { points } = usePerformance();
+  const [scope, setScope] = useState<Scope>("College");
   const [query, setQuery] = useState("");
 
-  const rows = LEADERBOARDS[scope];
+  const rows = useMemo(() => liveBoard(scope, points), [scope, points]);
   const you = rows.find((r) => r.you);
   const podium = rows.slice(0, 3);
 
@@ -38,7 +42,7 @@ export function LeaderboardPage() {
         Where you <Serif>stand.</Serif>
       </H2>
       <p style={{ color: C.inkSoft, marginTop: 8, fontSize: 15.5, maxWidth: 620 }}>
-        Points come from labs, practice, non-tech tasks and exams. Rankings refresh every night.
+        {STUDENT.college} only. Points = lab completion + coding + exam scores, and your position updates the moment one is recorded.
       </p>
 
       <div style={{ display: "flex", gap: 12, marginTop: 18, flexWrap: "wrap", alignItems: "center" }}>

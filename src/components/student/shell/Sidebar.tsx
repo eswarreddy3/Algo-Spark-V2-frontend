@@ -3,8 +3,10 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import {
-  ChevronDown, ClipboardCheck, Code2, FlaskConical, LayoutDashboard, LifeBuoy, PenLine, Sparkles, Trophy, User, X,
+  BrainCircuit, ChevronDown, ClipboardCheck, Code2, FlaskConical, LayoutDashboard, LifeBuoy, PenLine, Sparkles, Trophy, User, X,
 } from "lucide-react";
+import { liveRank } from "../data/leaderboard";
+import { STUDENT } from "../data/student";
 import { C, FB, FD, FM } from "../theme";
 import { NONTECH_TABS, TECH_TABS, useNav, type NonTechTab, type TechTab, type View } from "../nav";
 
@@ -13,7 +15,13 @@ type NavItem = { id: View; label: string; icon: Icon };
 type NavGroup = { heading: string | null; items: NavItem[] };
 
 export const NAV_GROUPS: NavGroup[] = [
-  { heading: null, items: [{ id: "dashboard", label: "Dashboard", icon: LayoutDashboard }] },
+  {
+    heading: null,
+    items: [
+      { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { id: "coach", label: "AI Prep Coach", icon: BrainCircuit },
+    ],
+  },
   {
     heading: "Learn",
     items: [
@@ -142,7 +150,7 @@ export function Sidebar({
         <div style={{ fontFamily: FD, fontWeight: 700, fontSize: 26, marginTop: 2, display: "flex", alignItems: "center", gap: 7 }}>
           <Sparkles size={18} color={C.gold} /> {xp.toLocaleString()}
         </div>
-        <div style={{ fontSize: 12.5, color: "#AEB6E0", marginTop: 4 }}>Rank #9 · CSE-A</div>
+        <div style={{ fontSize: 12.5, color: "#AEB6E0", marginTop: 4 }}>College rank #{liveRank("College", xp)} · {STUDENT.collegeShort}</div>
       </button>
     </aside>
   );

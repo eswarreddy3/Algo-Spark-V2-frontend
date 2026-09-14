@@ -8,6 +8,8 @@ import { C, FB, FD, FM, blueGrad, goldGrad, tint } from "../theme";
 import { Card, Pill, ProgressBar } from "../ui";
 import { analyzeEmail, type EmailFeedback, type EmailPrompt } from "../data/emailFeedback";
 import { EMAIL_PROMPTS, PASSAGES, type Passage } from "../data/nontech";
+import { SUMMARY_WORDS, analyzeReading, type ReadingFeedback } from "../data/readingFeedback";
+import { usePerformance } from "../data/performance";
 import { CoursesSection } from "../courses/CoursesSection";
 import { useNav } from "../nav";
 
@@ -29,6 +31,7 @@ export function NonTechPage() {
 /* ---------------- email ---------------- */
 
 function EmailWriting() {
+  const { record } = usePerformance();
   const [promptId, setPromptId] = useState(EMAIL_PROMPTS[0].id);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [feedback, setFeedback] = useState<EmailFeedback | null>(null);
@@ -94,7 +97,11 @@ function EmailWriting() {
 
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 12, flexWrap: "wrap" }}>
             <button
-              onClick={() => setFeedback(analyzeEmail(text, prompt))}
+              onClick={() => {
+                const fb = analyzeEmail(text, prompt);
+                setFeedback(fb);
+                record({ kind: "email", title: `Email writing · ${prompt.title}`, detail: `AI score ${fb.overall}`, points: 0, score: fb.overall, ref: `email:${prompt.id}` });
+              }}
               disabled={tooShort}
               style={{
                 background: tooShort ? C.line : blueGrad, color: tooShort ? C.inkMute : "#fff", border: "none",
@@ -144,6 +151,8 @@ function EmailWriting() {
                     {feedback.stats.avgSentence} words per sentence · {feedback.stats.paragraphs} paragraphs
                   </div>
                 </div>
+
+                <p style={{ fontSize: 14, color: C.inkSoft, lineHeight: 1.65, marginTop: 14, marginBottom: 0 }}>{feedback.summary}</p>
 
                 <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 11 }}>
                   {feedback.scores.map((s) => (
@@ -207,18 +216,30 @@ function EmailWriting() {
 /* ---------------- reading ---------------- */
 
 function Reading() {
+  const { record } = usePerformance();
   const [passageId, setPassageId] = useState(PASSAGES[0].id);
   const [answers, setAnswers] = useState<Record<string, number>>({});
-  const [submitted, setSubmitted] = useState(false);
+  const [summary, setSummary] = useState("");
+  const [feedback, setFeedback] = useState<ReadingFeedback | null>(null);
+  const submitted = feedback !== null;
 
   const passage = PASSAGES.find((p) => p.id === passageId) as Passage;
   const answered = passage.questions.filter((q) => answers[q.id] !== undefined).length;
   const score = passage.questions.reduce((s, q) => s + (answers[q.id] === q.a ? 1 : 0), 0);
+  const summaryWords = summary.trim() ? summary.trim().split(/\s+/).length : 0;
+  const ready = answered === passage.questions.length && summaryWords >= SUMMARY_WORDS[0];
 
   function selectPassage(id: string) {
     setPassageId(id);
     setAnswers({});
-    setSubmitted(false);
+    setSummary("");
+    setFeedback(null);
+  }
+
+  function grade() {
+    const fb = analyzeReading(passage, answers, summary);
+    setFeedback(fb);
+    record({ kind: "reading", title: `Paragraph reading · ${passage.title}`, detail: `AI score ${fb.overall}`, points: 0, score: fb.overall, ref: `reading:${passage.id}` });
   }
 
   return (
@@ -320,33 +341,97 @@ function Reading() {
               ))}
             </div>
 
+            <div style={{ marginTop: 18, paddingTop: 16, borderTop: `1px solid ${C.line}` }}>
+              <div style={{ fontSize: 14.5, fontWeight: 600 }}>Summarise the passage in your own words</div>
+              <div style={{ fontSize: 13, color: C.inkMute, marginTop: 3 }}>
+                {SUMMARY_WORDS[0]}–{SUMMARY_WORDS[1]} words. The AI checks whether you caught the author&apos;s main ideas.
+              </div>
+              <textarea
+                value={summary}
+                onChange={(e) => setSummary(e.target.value)}
+                disabled={submitted}
+                aria-label="Passage summary"
+                style={{ width: "100%", minHeight: 110, marginTop: 10, border: `1px solid ${C.line}`, borderRadius: 12, padding: 12, fontFamily: FB, fontSize: 14, lineHeight: 1.6, outline: "none", resize: "vertical", color: C.ink, background: C.white }}
+              />
+              <div style={{ fontFamily: FM, fontSize: 12, color: C.inkMute, marginTop: 6 }}>{summaryWords} words</div>
+            </div>
+
             <div style={{ marginTop: 16 }}>
               {submitted ? (
                 <button
-                  onClick={() => { setAnswers({}); setSubmitted(false); }}
+                  onClick={() => { setAnswers({}); setSummary(""); setFeedback(null); }}
                   style={{ border: `1px solid ${C.line}`, background: C.white, borderRadius: 11, padding: "10px 16px", fontFamily: FB, fontWeight: 600, fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", gap: 7 }}
                 >
                   <RotateCcw size={15} /> Try again
                 </button>
               ) : (
                 <button
-                  onClick={() => setSubmitted(true)}
-                  disabled={answered < passage.questions.length}
+                  onClick={grade}
+                  disabled={!ready}
                   style={{
                     border: "none",
-                    background: answered < passage.questions.length ? C.line : blueGrad,
-                    color: answered < passage.questions.length ? C.inkMute : "#fff",
+                    background: !ready ? C.line : blueGrad,
+                    color: !ready ? C.inkMute : "#fff",
                     borderRadius: 12, padding: "12px 20px", fontFamily: FB, fontWeight: 600, fontSize: 14.5,
-                    cursor: answered < passage.questions.length ? "not-allowed" : "pointer",
+                    cursor: !ready ? "not-allowed" : "pointer", display: "inline-flex", alignItems: "center", gap: 8,
                   }}
                 >
-                  {answered < passage.questions.length ? `Answer all ${passage.questions.length} questions` : "Check answers"}
+                  <Sparkles size={16} />
+                  {answered < passage.questions.length
+                    ? `Answer all ${passage.questions.length} questions`
+                    : summaryWords < SUMMARY_WORDS[0]
+                      ? `Write at least ${SUMMARY_WORDS[0]} words of summary`
+                      : "Get AI feedback"}
                 </button>
               )}
             </div>
           </Card>
+
+          {feedback && <ReadingFeedbackCard feedback={feedback} />}
         </div>
       </div>
     </div>
+  );
+}
+
+function ReadingFeedbackCard({ feedback }: { feedback: ReadingFeedback }) {
+  return (
+    <Card style={{ padding: 18 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: FD, fontWeight: 600, fontSize: 15 }}>
+        <Sparkles size={16} color={C.violet} /> AI feedback
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 16, marginTop: 12 }}>
+        <div>
+          <div style={{ fontFamily: FD, fontWeight: 700, fontSize: 40, background: goldGrad, WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent", lineHeight: 1.1 }}>
+            {feedback.overall}
+          </div>
+          <div style={{ color: C.inkMute, fontSize: 12.5 }}>overall score</div>
+        </div>
+        <p style={{ flex: 1, fontSize: 14, color: C.inkSoft, lineHeight: 1.6, margin: 0 }}>{feedback.summary}</p>
+      </div>
+      <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 11 }}>
+        {feedback.scores.map((s) => (
+          <div key={s.label}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13.5, marginBottom: 5 }}>
+              <span>
+                {s.label} <span style={{ color: C.inkMute, fontSize: 12.5 }}>· {s.hint}</span>
+              </span>
+              <span style={{ fontFamily: FM, color: C.inkSoft }}>{s.value}</span>
+            </div>
+            <ProgressBar value={s.value} color={s.value >= 75 ? C.green : s.value >= 50 ? C.goldDeep : C.red} height={7} />
+          </div>
+        ))}
+      </div>
+      <div style={{ fontFamily: FD, fontWeight: 600, fontSize: 14.5, display: "flex", alignItems: "center", gap: 8, marginTop: 18 }}>
+        <Info size={15} color={C.blue} /> What to improve
+      </div>
+      <ol style={{ margin: "8px 0 0", paddingLeft: 20, color: C.inkSoft, fontSize: 14, lineHeight: 1.7 }}>
+        {feedback.suggestions.map((s) => (
+          <li key={s} style={{ marginBottom: 4 }}>
+            {s}
+          </li>
+        ))}
+      </ol>
+    </Card>
   );
 }

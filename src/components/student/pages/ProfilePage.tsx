@@ -1,26 +1,26 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-  Award, BookOpen, CalendarDays, Code2, Database, Flame, FlaskConical, Mail, Star, Target, Trophy, Zap,
+  Award, BookOpen, CalendarDays, Camera, CheckCircle2, Code2, Database, Flame, FlaskConical, KeyRound, Lock, Mail, Star, Target, Trash2, Trophy, Zap,
 } from "lucide-react";
-import { C, FD, FM, blueGrad, tint } from "../theme";
+import { C, FB, FD, FM, blueGrad, tint } from "../theme";
 import { Card, Kicker, Pill, ProgressBar } from "../ui";
 import { LABS } from "../labs/catalog";
 import { useLabsProgress } from "../labs/progress";
+import { ALL_COURSES } from "../courses/catalog";
+import { useCourseProgress } from "../courses/progress";
 import { PRACTICE_PROBLEMS } from "../data/problems";
+import { SQL_PROBLEMS } from "../data/sqlProblems";
 import { useSolved } from "../data/solved";
+import { usePerformance } from "../data/performance";
+import { liveRank } from "../data/leaderboard";
+import { STUDENT } from "../data/student";
+import { DEMO_ACCOUNTS } from "@/lib/auth";
 import { useNav } from "../nav";
 
-const STUDENT = {
-  name: "Aditya Kumar",
-  roll: "21CS042",
-  section: "CSE-A",
-  year: "3rd year",
-  email: "21cs042@college.edu",
-  joined: "Aug 2023",
-  mentor: "Dr. Meera Raghavan",
-};
+const PHOTO_KEY = "algospark.profile.photo";
+const MAX_PHOTO_BYTES = 2 * 1024 * 1024;
 
 /** 12 weeks of activity, most recent last. Values are tasks completed that day. */
 const ACTIVITY: number[] = [
@@ -32,8 +32,49 @@ const ACTIVITY: number[] = [
 
 export function ProfilePage({ xp }: { xp: number }) {
   const { labStats, isComplete } = useLabsProgress();
+  const { courseStats } = useCourseProgress();
   const { solved } = useSolved();
+  const { exams } = usePerformance();
   const { go } = useNav();
+  const [photo, setPhoto] = useState<string | null>(null);
+  const [photoError, setPhotoError] = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrating from an external store
+      setPhoto(window.localStorage.getItem(PHOTO_KEY));
+    } catch {
+      /* storage blocked — show initials */
+    }
+  }, []);
+
+  function onPhoto(file: File | undefined) {
+    setPhotoError("");
+    if (!file) return;
+    if (!file.type.startsWith("image/")) return setPhotoError("Choose an image file.");
+    if (file.size > MAX_PHOTO_BYTES) return setPhotoError("Keep the photo under 2 MB.");
+    const reader = new FileReader();
+    reader.onload = () => {
+      const url = String(reader.result);
+      setPhoto(url);
+      try {
+        window.localStorage.setItem(PHOTO_KEY, url);
+      } catch {
+        setPhotoError("Your browser couldn't save the photo, so it will reset on reload.");
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function removePhoto() {
+    setPhoto(null);
+    try {
+      window.localStorage.removeItem(PHOTO_KEY);
+    } catch {
+      /* nothing stored */
+    }
+  }
 
   const labTotals = useMemo(
     () => LABS.map((lab) => ({ lab, stats: labStats(lab.id) })),
@@ -41,10 +82,13 @@ export function ProfilePage({ xp }: { xp: number }) {
   );
   const weeksDone = labTotals.reduce((n, l) => n + l.stats.completed, 0);
   const labPoints = labTotals.reduce((n, l) => n + l.stats.points, 0);
-  const practicePoints = PRACTICE_PROBLEMS.filter((p) => solved.includes(p.exercise.id)).reduce(
+  const practicePoints = [...PRACTICE_PROBLEMS, ...SQL_PROBLEMS].filter((p) => solved.includes(p.exercise.id)).reduce(
     (n, p) => n + p.exercise.points,
     0,
   );
+  const coursePoints = ALL_COURSES.reduce((n, c) => n + courseStats(c).points, 0);
+  const examPoints = exams.filter((e) => e.feedback).reduce((n, e) => n + e.points, 0);
+  const otherPoints = Math.max(0, xp - labPoints - practicePoints - coursePoints - examPoints);
 
   const badges = [
     { t: "7-day streak", icon: Flame, c: C.red, earned: true, when: "2 Aug 2026" },
@@ -63,20 +107,34 @@ export function ProfilePage({ xp }: { xp: number }) {
         <div style={{ height: 96, background: blueGrad }} />
         <div style={{ padding: "0 24px 24px", marginTop: -38 }}>
           <div style={{ display: "flex", alignItems: "flex-end", gap: 18, flexWrap: "wrap" }}>
-            <div style={{ width: 88, height: 88, borderRadius: 999, background: C.white, padding: 4, flex: "none" }}>
-              <div style={{ width: "100%", height: "100%", borderRadius: 999, background: "linear-gradient(135deg,#101433,#26327A)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FD, fontWeight: 700, fontSize: 30 }}>
-                AK
-              </div>
+            <div style={{ position: "relative", width: 88, height: 88, borderRadius: 999, background: C.white, padding: 4, flex: "none" }}>
+              {photo ? (
+                // eslint-disable-next-line @next/next/no-img-element -- a local data URL, not an optimisable asset
+                <img src={photo} alt="Your profile photo" style={{ width: "100%", height: "100%", borderRadius: 999, objectFit: "cover", display: "block" }} />
+              ) : (
+                <div style={{ width: "100%", height: "100%", borderRadius: 999, background: "linear-gradient(135deg,#101433,#26327A)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FD, fontWeight: 700, fontSize: 30 }}>
+                  {STUDENT.initials}
+                </div>
+              )}
+              <button
+                onClick={() => fileRef.current?.click()}
+                aria-label="Change profile photo"
+                title="Change photo"
+                style={{ position: "absolute", right: 0, bottom: 0, width: 30, height: 30, borderRadius: 999, border: `2px solid ${C.white}`, background: C.royal, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", padding: 0 }}
+              >
+                <Camera size={14} />
+              </button>
+              <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => { onPhoto(e.target.files?.[0]); e.target.value = ""; }} />
             </div>
             <div style={{ flex: 1, minWidth: 220, paddingBottom: 4 }}>
               <div style={{ fontFamily: FD, fontWeight: 700, fontSize: 24 }}>{STUDENT.name}</div>
               <div style={{ color: C.inkMute, fontSize: 14, marginTop: 2 }}>
-                {STUDENT.section} · {STUDENT.year} · Roll {STUDENT.roll}
+                {STUDENT.branchShort} · {STUDENT.section} · {STUDENT.year} · Roll {STUDENT.roll}
               </div>
             </div>
             <div style={{ display: "flex", gap: 24, flexWrap: "wrap", paddingBottom: 4 }}>
               <HeadStat label="Points" value={xp.toLocaleString()} />
-              <HeadStat label="Rank" value="#9" />
+              <HeadStat label="College rank" value={`#${liveRank("College", xp)}`} />
               <HeadStat label="Weeks done" value={String(weeksDone)} />
               <HeadStat label="Streak" value="12d" />
             </div>
@@ -92,12 +150,19 @@ export function ProfilePage({ xp }: { xp: number }) {
               Joined {STUDENT.joined}
             </Pill>
             <Pill>Mentor · {STUDENT.mentor}</Pill>
+            {photo && (
+              <button onClick={removePhoto} style={{ border: "none", background: "none", color: C.inkMute, fontFamily: FB, fontSize: 12.5, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 5 }}>
+                <Trash2 size={12} /> Remove photo
+              </button>
+            )}
           </div>
+          {photoError && <div role="alert" style={{ marginTop: 8, color: C.red, fontSize: 13 }}>{photoError}</div>}
         </div>
       </Card>
 
       <div className="as-split-main" style={{ marginTop: 16 }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <InstitutionCard />
           <Card style={{ padding: 18 }}>
             <div style={{ fontFamily: FD, fontWeight: 600, fontSize: 16 }}>Lab progress</div>
             <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 14 }}>
@@ -133,11 +198,14 @@ export function ProfilePage({ xp }: { xp: number }) {
             <div style={{ fontFamily: FD, fontWeight: 600, fontSize: 16 }}>Points breakdown</div>
             <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 12 }}>
               <BreakdownRow icon={FlaskConical} label="Labs" value={labPoints} total={xp} color={C.royal} />
-              <BreakdownRow icon={Code2} label="Practice" value={practicePoints} total={xp} color={C.violet} />
-              <BreakdownRow icon={BookOpen} label="Non-tech" value={420} total={xp} color={C.cyan} />
-              <BreakdownRow icon={Trophy} label="Exams" value={Math.max(0, xp - labPoints - practicePoints - 420)} total={xp} color={C.goldDeep} />
+              <BreakdownRow icon={Code2} label="Coding" value={practicePoints} total={xp} color={C.violet} />
+              <BreakdownRow icon={BookOpen} label="Courses" value={coursePoints} total={xp} color={C.cyan} />
+              <BreakdownRow icon={Trophy} label="Exams" value={examPoints} total={xp} color={C.goldDeep} />
+              {otherPoints > 0 && <BreakdownRow icon={Star} label="Earlier semesters" value={otherPoints} total={xp} color={C.inkMute} />}
             </div>
           </Card>
+
+          <PasswordCard />
 
           <Card style={{ padding: 18 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: FD, fontWeight: 600, fontSize: 16 }}>
@@ -244,5 +312,103 @@ function ActivityHeatmap() {
         </span>
       </div>
     </div>
+  );
+}
+
+/** Set by the Super Admin at onboarding. Students can see these but not change them. */
+function InstitutionCard() {
+  const fields = [
+    { label: "College", value: STUDENT.college },
+    { label: "Branch", value: STUDENT.branch },
+    { label: "Year", value: STUDENT.year },
+    { label: "Section", value: STUDENT.section },
+    { label: "Roll number", value: STUDENT.roll },
+    { label: "College email", value: STUDENT.email },
+  ];
+  return (
+    <Card style={{ padding: 18 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+        <div style={{ fontFamily: FD, fontWeight: 600, fontSize: 16 }}>Institution details</div>
+        <Pill>
+          <Lock size={10} style={{ display: "inline", marginRight: 4, verticalAlign: -1 }} />
+          read-only
+        </Pill>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12, marginTop: 14 }}>
+        {fields.map((f) => (
+          <div key={f.label}>
+            <div style={{ fontSize: 12, color: C.inkMute }}>{f.label}</div>
+            <div style={{ fontSize: 14.5, fontWeight: 500, marginTop: 2 }}>{f.value}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: 12.5, color: C.inkMute, marginTop: 14 }}>
+        Something wrong here? Raise a support ticket — only the AlgoSpark admin team can change institution details.
+      </div>
+    </Card>
+  );
+}
+
+function PasswordCard() {
+  const [current, setCurrent] = useState("");
+  const [next, setNext] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [touched, setTouched] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const errors = {
+    current: current !== DEMO_ACCOUNTS.student.password ? "Current password is incorrect" : "",
+    next:
+      next.length < 8 ? "Use at least 8 characters" : !/[A-Za-z]/.test(next) || !/\d/.test(next) ? "Mix letters and numbers" : next === current ? "Choose a different password" : "",
+    confirm: confirm !== next ? "Passwords don't match" : "",
+  };
+  const valid = !errors.current && !errors.next && !errors.confirm;
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setTouched(true);
+    setSaved(false);
+    if (!valid) return;
+    setSaved(true);
+    setCurrent("");
+    setNext("");
+    setConfirm("");
+    setTouched(false);
+  }
+
+  const field = (label: string, value: string, set: (v: string) => void, error: string, autoComplete: string) => (
+    <label style={{ display: "block", marginTop: 12 }}>
+      <span style={{ fontSize: 13, fontWeight: 600, color: C.inkSoft }}>{label}</span>
+      <input
+        type="password"
+        value={value}
+        autoComplete={autoComplete}
+        onChange={(e) => { set(e.target.value); setSaved(false); }}
+        style={{ display: "block", width: "100%", marginTop: 6, border: `1px solid ${touched && error ? C.red : C.line}`, borderRadius: 11, padding: "10px 12px", fontFamily: FB, fontSize: 14, outline: "none", color: C.ink, background: C.white, boxSizing: "border-box" }}
+      />
+      {touched && error && <span style={{ display: "block", fontSize: 12, color: C.red, marginTop: 4 }}>{error}</span>}
+    </label>
+  );
+
+  return (
+    <Card style={{ padding: 18 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: FD, fontWeight: 600, fontSize: 16 }}>
+        <KeyRound size={17} color={C.royal} /> Change password
+      </div>
+      <form onSubmit={submit}>
+        {field("Current password", current, setCurrent, errors.current, "current-password")}
+        {field("New password", next, setNext, errors.next, "new-password")}
+        {field("Confirm new password", confirm, setConfirm, errors.confirm, "new-password")}
+        <button type="submit" style={{ marginTop: 14, width: "100%", background: blueGrad, color: "#fff", border: "none", borderRadius: 11, padding: "11px", fontFamily: FB, fontWeight: 600, fontSize: 14, cursor: "pointer" }}>
+          Update password
+        </button>
+      </form>
+      {saved && (
+        <div role="status" style={{ marginTop: 12, background: C.greenBg, color: C.green, borderRadius: 11, padding: "10px 12px", fontSize: 13, display: "flex", gap: 8 }}>
+          <CheckCircle2 size={16} style={{ flex: "none", marginTop: 1 }} />
+          Password checks passed. In this prototype sign-in still uses the demo password until the auth API is connected.
+        </div>
+      )}
+    </Card>
   );
 }

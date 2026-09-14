@@ -76,7 +76,7 @@ async function runOnJudge(req: RunRequest): Promise<RunResult> {
  * below only ever look at code. Without this, a bracket inside a string —
  * pairs = {')': '('} — would look like a syntax error.
  */
-function scrub(source: string, language: Language) {
+export function scrub(source: string, language: Language) {
   const lineComment = language === "python" ? "#" : language === "sql" ? "--" : "//";
   const blockComments = language === "cpp" || language === "java";
   const tripleQuotes = language === "python";
